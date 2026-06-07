@@ -1,2 +1,35 @@
 # UrbanShield
-Smart City Emergency Command and Response Platform built using React, Node.js, MongoDB, Socket.IO, Graph Algorithms, and Real-Time Dispatch Simulation.
+
+Smart City Emergency Command Platform
+
+## Features
+
+- Emergency Reporting
+- Real-Time Dispatch
+- Incident Tracking
+- Route Optimization
+- Resource Allocation
+- Heatmap Analytics
+- Road Blockage Simulation
+
+## Tech Stack
+
+Frontend:
+- React
+- Tailwind
+- Leaflet
+
+Backend:
+- Node.js
+- Express
+
+Database:
+- MongoDB
+
+Realtime:
+- Socket.IO
+
+Algorithms:
+- BFS
+- Dijkstra
+- Priority Queue
