@@ -5,7 +5,7 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 
 const connectDB = require("./config/db");
-const testRoutes = require("./routes/testRoutes");
+const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 
 dotenv.config();
@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(helmet());
-app.use("/api", testRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
