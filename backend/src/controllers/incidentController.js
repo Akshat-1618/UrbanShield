@@ -65,3 +65,72 @@ exports.createIncident = async (req, res) => {
     });
   }
 };
+
+exports.getMyIncidents = async (req, res) => {
+  try {
+    const incidents = await Incident.find({
+      createdBy: req.user.id,
+    })
+      .populate("createdBy", "name email")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: incidents.length,
+      data: incidents,
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+};
+
+exports.getAllIncidents = async (req, res) => {
+  try {
+    const incidents = await Incident.find()
+      .populate("createdBy", "name email")
+      .populate("assignedUnit")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: incidents.length,
+      data: incidents,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getIncidentById = async (req, res) => {
+  try {
+    const incident = await Incident.findById(req.params.id)
+      .populate("createdBy", "name email")
+      .populate("assignedUnit");
+
+    if (!incident) {
+      return res.status(404).json({
+        success: false,
+        message: "Incident not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: incident,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

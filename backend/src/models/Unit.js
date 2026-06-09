@@ -57,6 +57,19 @@ const unitSchema = new mongoose.Schema(
       ],
       default: "IDLE",
     },
+
+    currentMission: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Incident",
+      default: null,
+    },
+
+    assignedOperator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
   },
   {
     timestamps: true,
