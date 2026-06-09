@@ -8,6 +8,8 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const incidentRoutes = require("./routes/incidentRoutes");
+const unitRoutes = require("./routes/unitRoutes");
 
 dotenv.config();
 
@@ -22,6 +24,8 @@ app.use(helmet());
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/incidents", incidentRoutes);
+app.use("/api/units", unitRoutes);
 
 app.get("/", (req, res) => {
   res.json({
