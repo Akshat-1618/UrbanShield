@@ -6,6 +6,7 @@ const {
   getAllIncidents,
   getIncidentById,
   assignUnit,
+  autoAssignUnit,
   updateIncidentStatus,
 } = require("../controllers/incidentController");
 
@@ -56,6 +57,13 @@ router.patch(
   protect,
   authorize("unit"),
   updateIncidentStatus
+);
+
+router.patch(
+  "/:id/auto-assign",
+  protect,
+  authorize("admin"),
+  autoAssignUnit
 );
 
 // Get Incident By ID

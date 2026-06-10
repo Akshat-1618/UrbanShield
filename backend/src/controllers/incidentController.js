@@ -1,5 +1,12 @@
 const Incident = require("../models/Incident");
 const Unit = require("../models/Unit");
+const {
+  findNearestAvailableUnit,
+} = require("../algorithms/bfs");
+
+const {
+  findShortestPath,
+} = require("../algorithms/dijkstra");
 
 // Priority -> Severity Mapping
 const severityMap = {
@@ -203,6 +210,150 @@ exports.assignUnit = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message,
+    });
+
+  }
+};
+
+exports.autoAssignUnit = async (req, res) => {
+  try {
+
+    const incident = await Incident.findById(req.params.id);
+
+    if (!incident) {
+      return res.status(404).json({
+        success: false,
+        message: "Incident not found",
+      });
+    }
+
+    if (incident.assignedUnit) {
+      return res.status(400).json({
+        success: false,
+        message: "Incident already has an assigned unit",
+      });
+    }
+
+    // ----------------------------------
+    // Decide required emergency unit
+    // ----------------------------------
+
+    let requiredUnitType;
+
+    switch (incident.type) {
+
+      case "MEDICAL":
+      case "ACCIDENT":
+        requiredUnitType = "AMBULANCE";
+        break;
+
+      case "FIRE":
+        requiredUnitType = "FIRE_BRIGADE";
+        break;
+
+      case "CRIME":
+      case "INFRASTRUCTURE":
+        requiredUnitType = "POLICE";
+        break;
+
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Unsupported incident type",
+        });
+
+    }
+
+    // ----------------------------------
+    // BFS
+    // ----------------------------------
+
+    const bfsResult =
+      await findNearestAvailableUnit(
+        incident.location.nodeId,
+        requiredUnitType
+      );
+
+    if (!bfsResult.found) {
+
+      return res.status(404).json({
+        success: false,
+        message: "No available unit found",
+      });
+
+    }
+
+    const unit = bfsResult.unit;
+
+    // ----------------------------------
+    // Dijkstra
+    // ----------------------------------
+
+    const route =
+      findShortestPath(
+        unit.currentLocation.nodeId,
+        incident.location.nodeId
+      );
+
+    // ----------------------------------
+    // Update Incident
+    // ----------------------------------
+
+    incident.assignedUnit = unit._id;
+
+    incident.status = "ASSIGNED";
+
+    incident.statusHistory.push({
+      status: "ASSIGNED",
+    });
+
+    await incident.save();
+
+    // ----------------------------------
+    // Update Unit
+    // ----------------------------------
+
+    unit.currentMission = incident._id;
+
+    unit.status = "ASSIGNED";
+
+    unit.availability = false;
+
+    await unit.save();
+
+    // ----------------------------------
+    // Response
+    // ----------------------------------
+
+    return res.status(200).json({
+
+      success: true,
+
+      message:
+        "Nearest available unit assigned successfully",
+
+      assignedUnit: {
+
+        id: unit._id,
+
+        unitName: unit.unitName,
+
+        unitType: unit.unitType,
+
+      },
+
+      route,
+
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+
     });
 
   }
