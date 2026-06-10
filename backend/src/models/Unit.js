@@ -8,6 +8,19 @@ const unitSchema = new mongoose.Schema(
       trim: true,
     },
 
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+
+    password: {
+      type: String,
+      required: true,
+    },
+
     unitType: {
       type: String,
       enum: [
@@ -50,23 +63,18 @@ const unitSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
-        "IDLE",
-        "DISPATCHED",
-        "EN_ROUTE",
-        "BUSY",
-      ],
+      "IDLE",
+      "ASSIGNED",
+      "EN_ROUTE",
+      "BUSY",
+      "OFFLINE",
+    ],
       default: "IDLE",
     },
 
     currentMission: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Incident",
-      default: null,
-    },
-
-    assignedOperator: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
       default: null,
     },
 

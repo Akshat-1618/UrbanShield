@@ -5,6 +5,8 @@ const {
   getMyIncidents,
   getAllIncidents,
   getIncidentById,
+  assignUnit,
+  updateIncidentStatus,
 } = require("../controllers/incidentController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -40,6 +42,20 @@ router.get(
   protect,
   authorize("admin"),
   getAllIncidents
+);
+
+router.patch(
+  "/:id/assign",
+  protect,
+  authorize("admin"),
+  assignUnit
+);
+
+router.patch(
+  "/:id/status",
+  protect,
+  authorize("unit"),
+  updateIncidentStatus
 );
 
 // Get Incident By ID

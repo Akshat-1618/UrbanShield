@@ -1,4 +1,5 @@
 const Incident = require("../models/Incident");
+const Unit = require("../models/Unit");
 
 // Priority -> Severity Mapping
 const severityMap = {
@@ -43,12 +44,19 @@ exports.createIncident = async (req, res) => {
       location: {
         nodeId,
         areaName,
-
         coordinates: {
           lat,
           lng,
         },
       },
+
+      status: "REPORTED",
+
+      statusHistory: [
+        {
+          status: "REPORTED",
+        },
+      ],
 
       createdBy: req.user.id,
     });
@@ -132,5 +140,148 @@ exports.getIncidentById = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+exports.assignUnit = async (req, res) => {
+  try {
+    const { unitId } = req.body;
+
+    const incident = await Incident.findById(req.params.id);
+
+    if (!incident) {
+      return res.status(404).json({
+        success: false,
+        message: "Incident not found",
+      });
+    }
+
+    const unit = await Unit.findById(unitId);
+
+    if (!unit) {
+      return res.status(404).json({
+        success: false,
+        message: "Unit not found",
+      });
+    }
+
+    if (!unit.availability) {
+      return res.status(400).json({
+        success: false,
+        message: "Unit is not available",
+      });
+    }
+
+    // Update Incident
+
+    incident.assignedUnit = unit._id;
+    incident.status = "ASSIGNED";
+
+    incident.statusHistory.push({
+      status: "ASSIGNED",
+    });
+
+    await incident.save();
+
+    // Update Unit
+
+    unit.currentMission = incident._id;
+    unit.status = "ASSIGNED";
+    unit.availability = false;
+
+    await unit.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Unit assigned successfully",
+
+      data: incident,
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+};
+
+exports.updateIncidentStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "ACCEPTED",
+      "EN_ROUTE",
+      "ARRIVED",
+      "RESOLVED",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status",
+      });
+    }
+
+    const incident = await Incident.findById(req.params.id);
+
+    if (!incident) {
+      return res.status(404).json({
+        success: false,
+        message: "Incident not found",
+      });
+    }
+
+    // Update incident status
+    incident.status = status;
+
+    incident.statusHistory.push({
+      status,
+    });
+
+    await incident.save();
+
+    // Update assigned unit if exists
+    if (incident.assignedUnit) {
+      const unit = await Unit.findById(
+        incident.assignedUnit
+      );
+
+      if (unit) {
+        if (status === "ACCEPTED") {
+          unit.status = "BUSY";
+        } 
+        else if (status === "EN_ROUTE") {
+          unit.status = "EN_ROUTE";
+        } 
+        else if (status === "ARRIVED") {
+          unit.status = "BUSY";
+        } 
+        else if (status === "RESOLVED") {
+          unit.status = "IDLE";
+          unit.availability = true;
+          unit.currentMission = null;
+        }
+
+        await unit.save();
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Incident status updated successfully",
+      data: incident,
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
   }
 };

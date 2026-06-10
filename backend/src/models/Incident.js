@@ -69,6 +69,27 @@ const incidentSchema = new mongoose.Schema(
       default: "REPORTED",
     },
 
+    statusHistory: [
+      {
+        status: {
+          type: String,
+          enum: [
+            "REPORTED",
+            "ASSIGNED",
+            "ACCEPTED",
+            "EN_ROUTE",
+            "ARRIVED",
+            "RESOLVED",
+          ],
+        },
+
+        updatedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

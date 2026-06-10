@@ -40,6 +40,10 @@ const createIncidentValidation = [
     .notEmpty()
     .withMessage("Area name is required"),
 
+  body("coordinates")
+    .exists()
+    .withMessage("Coordinates are required"),
+
   body("coordinates.lat")
     .isFloat()
     .withMessage("Valid latitude is required"),
