@@ -361,10 +361,10 @@ exports.autoAssignUnit = async (req, res) => {
 
 exports.updateIncidentStatus = async (req, res) => {
   try {
+
     const { status } = req.body;
 
     const allowedStatuses = [
-      "ACCEPTED",
       "EN_ROUTE",
       "ARRIVED",
       "RESOLVED",
@@ -377,7 +377,9 @@ exports.updateIncidentStatus = async (req, res) => {
       });
     }
 
-    const incident = await Incident.findById(req.params.id);
+    const incident = await Incident.findById(
+      req.params.id
+    );
 
     if (!incident) {
       return res.status(404).json({
@@ -386,7 +388,48 @@ exports.updateIncidentStatus = async (req, res) => {
       });
     }
 
-    // Update incident status
+    // -----------------------------
+    // Validate Transition
+    // -----------------------------
+
+    const validTransitions = {
+
+      ASSIGNED: ["EN_ROUTE"],
+
+      EN_ROUTE: ["ARRIVED"],
+
+      ARRIVED: ["RESOLVED"],
+
+    };
+
+    const currentStatus =
+      incident.status;
+
+    if (
+
+      !validTransitions[currentStatus] ||
+
+      !validTransitions[
+        currentStatus
+      ].includes(status)
+
+    ) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          `Cannot move from ${currentStatus} to ${status}`,
+
+      });
+
+    }
+
+    // -----------------------------
+    // Update Incident
+    // -----------------------------
+
     incident.status = status;
 
     incident.statusHistory.push({
@@ -395,44 +438,81 @@ exports.updateIncidentStatus = async (req, res) => {
 
     await incident.save();
 
-    // Update assigned unit if exists
+    // -----------------------------
+    // Update Unit
+    // -----------------------------
+
     if (incident.assignedUnit) {
-      const unit = await Unit.findById(
-        incident.assignedUnit
-      );
+
+      const unit =
+        await Unit.findById(
+          incident.assignedUnit
+        );
 
       if (unit) {
-        if (status === "ACCEPTED") {
-          unit.status = "BUSY";
-        } 
-        else if (status === "EN_ROUTE") {
-          unit.status = "EN_ROUTE";
-        } 
-        else if (status === "ARRIVED") {
-          unit.status = "BUSY";
-        } 
-        else if (status === "RESOLVED") {
-          unit.status = "IDLE";
-          unit.availability = true;
-          unit.currentMission = null;
+
+        if (
+          status === "EN_ROUTE"
+        ) {
+
+          unit.status =
+            "EN_ROUTE";
+
+        }
+
+        else if (
+          status === "ARRIVED"
+        ) {
+
+          unit.status =
+            "BUSY";
+
+        }
+
+        else if (
+          status === "RESOLVED"
+        ) {
+
+          unit.status =
+            "IDLE";
+
+          unit.availability =
+            true;
+
+          unit.currentMission =
+            null;
+
         }
 
         await unit.save();
+
       }
+
     }
 
     return res.status(200).json({
+
       success: true,
-      message: "Incident status updated successfully",
+
+      message:
+        "Incident status updated successfully",
+
       data: incident,
-    });
 
-  } catch (error) {
-
-    return res.status(500).json({
-      success: false,
-      message: error.message,
     });
 
   }
+
+  catch (error) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+
+    });
+
+  }
+
 };

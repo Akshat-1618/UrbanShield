@@ -134,3 +134,120 @@ exports.loginUnit = async (req, res) => {
 
   }
 };
+
+// ================================
+// Get All Units (Admin)
+// ================================
+
+exports.getAllUnits = async (req, res) => {
+  try {
+
+    const units = await Unit.find()
+      .select("-password")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+
+      success: true,
+
+      count: units.length,
+
+      data: units,
+
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+
+    });
+
+  }
+};
+
+// ================================
+// Get Logged In Unit Profile
+// ================================
+
+exports.getMyProfile = async (req, res) => {
+  try {
+
+    const unit = await Unit.findById(req.user.id)
+      .select("-password");
+
+    if (!unit) {
+      return res.status(404).json({
+        success: false,
+        message: "Unit not found",
+      });
+    }
+
+    return res.status(200).json({
+
+      success: true,
+
+      data: unit,
+
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+
+    });
+
+  }
+};
+
+// ================================
+// Get Current Assigned Mission
+// ================================
+
+exports.getCurrentMission = async (req, res) => {
+  try {
+
+    const unit = await Unit.findById(req.user.id)
+      .populate(
+        "currentMission"
+      );
+
+    if (!unit) {
+
+      return res.status(404).json({
+
+        success: false,
+
+        message: "Unit not found",
+
+      });
+
+    }
+
+    return res.status(200).json({
+
+      success: true,
+
+      data: unit.currentMission,
+
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+
+    });
+
+  }
+};

@@ -61,7 +61,6 @@ const incidentSchema = new mongoose.Schema(
       enum: [
         "REPORTED",
         "ASSIGNED",
-        "ACCEPTED",
         "EN_ROUTE",
         "ARRIVED",
         "RESOLVED",
@@ -76,7 +75,6 @@ const incidentSchema = new mongoose.Schema(
           enum: [
             "REPORTED",
             "ASSIGNED",
-            "ACCEPTED",
             "EN_ROUTE",
             "ARRIVED",
             "RESOLVED",

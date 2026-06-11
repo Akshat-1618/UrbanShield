@@ -5,6 +5,9 @@ const router = express.Router();
 const {
   createUnit,
   loginUnit,
+  getAllUnits,
+  getMyProfile,
+  getCurrentMission,
 } = require("../controllers/unitController");
 
 const {
@@ -29,6 +32,37 @@ router.post(
   loginUnitValidation,
   validate,
   loginUnit
+);
+
+// =========================
+// Get All Units
+// =========================
+
+router.get(
+  "/",
+  protect,
+  authorize("admin"),
+  getAllUnits
+);
+
+// =========================
+// Logged In Unit Profile
+// =========================
+
+router.get(
+  "/me",
+  protect,
+  getMyProfile
+);
+
+// =========================
+// Current Assigned Mission
+// =========================
+
+router.get(
+  "/my-mission",
+  protect,
+  getCurrentMission
 );
 
 // =========================
