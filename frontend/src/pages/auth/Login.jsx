@@ -273,6 +273,24 @@ const Login = () => {
 
         </p>
 
+          <div className="mt-6 border-t pt-6 text-center">
+
+            <p className="text-sm text-gray-600">
+
+              Are you an Emergency Response Unit?
+
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate("/unit/login")}
+              className="mt-2 font-semibold text-blue-600 transition hover:text-blue-700"
+            >
+              Login as Emergency Unit
+            </button>
+
+          </div>
+
       </div>
 
     </div>
