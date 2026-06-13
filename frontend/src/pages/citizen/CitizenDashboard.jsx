@@ -182,10 +182,12 @@ const CitizenDashboard = () => {
             View My Incidents
         </PrimaryButton>
 
-          <PrimaryButton>
-
-            Track Incident
-
+          <PrimaryButton
+            onClick={() =>
+              navigate("/citizen/track")
+            }
+          >
+            Track Active Incident
           </PrimaryButton>
 
         </div>

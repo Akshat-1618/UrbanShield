@@ -10,7 +10,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import UnitDashboard from "./pages/unit/UnitDashboard";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
-
+import TrackIncident from "./pages/citizen/TrackIncident";
 import ReportIncident from "./pages/citizen/ReportIncident";
 
 import MyIncidents from "./pages/citizen/MyIncidents";
@@ -81,6 +81,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={["citizen"]}>
             <MyIncidents />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/citizen/track"
+        element={
+          <ProtectedRoute allowedRoles={["citizen"]}>
+            <TrackIncident />
           </ProtectedRoute>
         }
       />
