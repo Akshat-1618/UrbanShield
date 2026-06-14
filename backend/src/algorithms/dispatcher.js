@@ -1,135 +1,47 @@
-// const {
-//   emergencyQueue,
-// } = require("./priorityQueue");
+const {
+  emergencyQueue,
+} = require("./priorityQueue");
 
-// const {
-//   findNearestAvailableUnit,
-// } = require("./bfs");
+const addIncident = (
+  incident
+) => {
 
-// const {
-//   findShortestPath,
-// } = require("./dijkstra");
+  emergencyQueue.enqueue(
+    incident
+  );
 
-// // =====================================
-// // Decide Required Unit Type
-// // =====================================
+};
 
-// const getRequiredUnitType = (
-//   incidentType
-// ) => {
+const removeIncident = (
+  incidentId
+) => {
 
-//   switch (incidentType) {
+  emergencyQueue.removeById(
+    incidentId
+  );
 
-//     case "MEDICAL":
-//       return "AMBULANCE";
+};
 
-//     case "FIRE":
-//       return "FIRE_BRIGADE";
+const getQueue = () => {
 
-//     case "CRIME":
-//       return "POLICE";
+  return emergencyQueue.getAll();
 
-//     case "ACCIDENT":
-//       return "AMBULANCE";
+};
 
-//     case "INFRASTRUCTURE":
-//       return "POLICE";
+const peekIncident = () => {
 
-//     default:
-//       return null;
+  return emergencyQueue.peek();
 
-//   }
+};
 
-// };
+module.exports = {
 
-// // =====================================
-// // Generate Dispatch Plan
-// // =====================================
+  addIncident,
 
-// const generateDispatchPlan =
-//   async (incident) => {
+  removeIncident,
 
-//     emergencyQueue.enqueue(
-//         incident
-//         );
+  getQueue,
 
-//     const currentIncident =
-//         emergencyQueue.dequeue();
+  peekIncident,
 
-//     const requiredUnitType =
-//       getRequiredUnitType(
-
-//         currentIncident.type
-
-//       );
-
-//     if (!requiredUnitType) {
-
-//       return {
-
-//         success: false,
-
-//         message:
-//           "No matching unit type",
-
-//       };
-
-//     }
-
-//     const bfsResult =
-//       await findNearestAvailableUnit(
-
-//         currentIncident.location.nodeId,
-
-//         requiredUnitType
-
-//       );
-
-//     if (!bfsResult.found) {
-
-//       return {
-
-//         success: false,
-
-//         message:
-//           "No available unit found",
-
-//       };
-
-//     }
-
-//     const shortestRoute =
-//       findShortestPath(
-
-//         bfsResult.unit.currentLocation.nodeId,
-
-//         currentIncident.location.nodeId
-
-//       );
-
-//     return {
-
-//       success: true,
-
-//       incidentId:
-//         currentIncident._id,
-
-//       severity:
-//         currentIncident.severity,
-
-//       unitType:
-//         requiredUnitType,
-
-//       assignedUnit:
-//         bfsResult.unit,
-
-//       route:
-//         shortestRoute,
-
-//     };
-
-//   };
-
-// module.exports = {
-//   generateDispatchPlan,
-// };
+};

@@ -2,6 +2,12 @@ const cityGraph = require("./cityGraph");
 
 const findShortestPath = (startNode, endNode) => {
 
+  console.log(
+  "START",
+  startNode,
+  endNode
+);
+
   const graph = cityGraph.graph;
 
   const distances = {};
@@ -89,7 +95,7 @@ const findShortestPath = (startNode, endNode) => {
 
   let current = endNode;
 
-  while (current !== null) {
+  while (current) {
 
     path.unshift(current);
 
@@ -97,6 +103,12 @@ const findShortestPath = (startNode, endNode) => {
       previous[current];
 
   }
+
+  console.log(
+  "END",
+  distances[endNode],
+  path
+);
 
   return {
 
