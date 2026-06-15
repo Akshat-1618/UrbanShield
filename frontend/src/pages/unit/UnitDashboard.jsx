@@ -5,6 +5,7 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 
 import api from "../../services/api";
+import socket from "../../services/socket";
 
 const UnitDashboard = () => {
 
@@ -15,6 +16,20 @@ const UnitDashboard = () => {
   useEffect(() => {
 
     fetchData();
+
+    socket.on(
+      "incidentUpdated",
+      fetchData
+    );
+
+    return () => {
+
+      socket.off(
+        "incidentUpdated",
+        fetchData
+      );
+
+    };
 
   }, []);
 
@@ -29,10 +44,6 @@ const UnitDashboard = () => {
 
       const missionRes =
         await api.get("/units/my-mission");
-
-      console.log(
-  missionRes.data.data
-);
 
       setMission(missionRes.data.data);
 
@@ -146,11 +157,35 @@ const UnitDashboard = () => {
 
               </h3>
 
-              <p className="mt-2">
+              {
+                mission.description && (
 
-                {mission.description}
+                  <p className="mt-2">
 
-              </p>
+                    {mission.description}
+
+                  </p>
+
+                )
+              }
+
+              <div className="mt-3">
+
+                <strong>
+
+                  Area:
+
+                </strong>
+
+                {" "}
+
+                {
+
+                  mission.location?.areaName
+
+                }
+
+              </div>
 
               <div className="mt-4 flex gap-3 flex-wrap">
 
@@ -206,7 +241,7 @@ const UnitDashboard = () => {
 
     <PrimaryButton
       onClick={() =>
-        updateStatus("EN_ROUTE")
+        updateStatus("ON_THE_WAY")
       }
     >
       Start Journey
@@ -214,7 +249,7 @@ const UnitDashboard = () => {
 
   )}
 
-  {mission.status === "EN_ROUTE" && (
+  {mission.status === "ON_THE_WAY" && (
 
     <PrimaryButton
       onClick={() =>

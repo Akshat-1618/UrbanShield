@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-
 import toast from "react-hot-toast";
-
 import DashboardLayout from "../../components/layout/DashboardLayout";
-
 import PrimaryButton from "../../components/ui/PrimaryButton";
 
 import api from "../../services/api";
+import socket from "../../services/socket";
 
 const AdminIncidents = () => {
 
@@ -19,6 +17,26 @@ const AdminIncidents = () => {
   useEffect(() => {
 
     fetchIncidents();
+
+    socket.on(
+
+      "incidentUpdated",
+
+      fetchIncidents
+
+    );
+
+    return () => {
+
+      socket.off(
+
+        "incidentUpdated",
+
+        fetchIncidents
+
+      );
+
+    };
 
   }, []);
 
@@ -136,15 +154,19 @@ const AdminIncidents = () => {
 
                 </h2>
 
-                <p className="mt-2 text-gray-600">
+                {
 
-                  {
+                  incident.description && (
 
-                    incident.description
+                    <p className="mt-2 text-gray-600">
 
-                  }
+                      {incident.description}
 
-                </p>
+                    </p>
+
+                  )
+
+                }
 
                 <div className="mt-4 flex flex-wrap gap-3">
 
@@ -177,6 +199,16 @@ const AdminIncidents = () => {
                     {
 
                       incident.severity
+
+                    }
+
+                  </span>
+
+                  <span className="rounded bg-gray-100 px-3 py-1">
+
+                    {
+
+                      incident.location.areaName
 
                     }
 

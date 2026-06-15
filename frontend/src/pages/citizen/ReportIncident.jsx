@@ -25,19 +25,9 @@ const ReportIncident = () => {
 
       priority: "LOW",
 
-      nodeId: "",
+      areaName: "Sector 18",
 
-      areaName: "",
-
-      coordinates: {
-
-        lat: "",
-
-        lng: "",
-
-      },
-
-    });
+  });
 
   const handleChange = (e) => {
 
@@ -58,33 +48,6 @@ const ReportIncident = () => {
     });
 
   };
-
-  const handleCoordinateChange =
-    (e) => {
-
-      const {
-
-        name,
-
-        value,
-
-      } = e.target;
-
-      setFormData({
-
-        ...formData,
-
-        coordinates: {
-
-          ...formData.coordinates,
-
-          [name]: Number(value),
-
-        },
-
-      });
-
-    };
 
   const handleSubmit =
     async (e) => {
@@ -174,15 +137,13 @@ const ReportIncident = () => {
 
             rows={4}
 
-            placeholder="Description"
+            placeholder="Description (Optional)"
 
             name="description"
 
             value={formData.description}
 
             onChange={handleChange}
-
-            required
 
           />
 
@@ -268,27 +229,7 @@ const ReportIncident = () => {
 
           </select>
 
-          <input
-
-            className="w-full rounded border p-3"
-
-            placeholder="Node ID"
-
-            name="nodeId"
-
-            value={formData.nodeId}
-
-            onChange={handleChange}
-
-            required
-
-          />
-
-          <input
-
-            className="w-full rounded border p-3"
-
-            placeholder="Area Name"
+          <select
 
             name="areaName"
 
@@ -296,45 +237,75 @@ const ReportIncident = () => {
 
             onChange={handleChange}
 
-            required
-
-          />
-
-          <input
-
             className="w-full rounded border p-3"
 
-            placeholder="Latitude"
+          >
 
-            name="lat"
+            <option>
+              Sector 18
+            </option>
 
-            type="number"
+            <option>
+              Sector 16
+            </option>
 
-            step="any"
+            <option>
+              Botanical Garden
+            </option>
 
-            onChange={handleCoordinateChange}
+            <option>
+              Noida City Centre
+            </option>
 
-            required
+            <option>
+              Atta Market
+            </option>
 
-          />
+            <option>
+              District Hospital
+            </option>
 
-          <input
+            <option>
+              Fire Headquarters
+            </option>
 
-            className="w-full rounded border p-3"
+            <option>
+              Police Headquarters
+            </option>
 
-            placeholder="Longitude"
+            <option>
+              Sector 62
+            </option>
 
-            name="lng"
+            <option>
+              Film City
+            </option>
 
-            type="number"
+            <option>
+              Sector 137
+            </option>
 
-            step="any"
+            <option>
+              Metro Depot
+            </option>
 
-            onChange={handleCoordinateChange}
+            <option>
+              Pari Chowk
+            </option>
 
-            required
+            <option>
+              Knowledge Park
+            </option>
 
-          />
+            <option>
+              Expo Mart
+            </option>
+
+            <option>
+              Bus Terminal
+            </option>
+
+          </select>
 
           <button
 

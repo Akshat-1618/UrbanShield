@@ -7,9 +7,8 @@ const createIncidentValidation = [
     .withMessage("Title is required"),
 
   body("description")
-    .trim()
-    .notEmpty()
-    .withMessage("Description is required"),
+    .optional()
+    .trim(),
 
   body("type")
     .isIn([
@@ -30,27 +29,11 @@ const createIncidentValidation = [
     ])
     .withMessage("Invalid priority level"),
 
-  body("nodeId")
-    .trim()
-    .notEmpty()
-    .withMessage("Node ID is required"),
-
   body("areaName")
     .trim()
     .notEmpty()
     .withMessage("Area name is required"),
 
-  body("coordinates")
-    .exists()
-    .withMessage("Coordinates are required"),
-
-  body("coordinates.lat")
-    .isFloat()
-    .withMessage("Valid latitude is required"),
-
-  body("coordinates.lng")
-    .isFloat()
-    .withMessage("Valid longitude is required"),
 ];
 
 const validate = (req, res, next) => {

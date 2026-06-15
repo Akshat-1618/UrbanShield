@@ -20,12 +20,9 @@ const {
 
 const {
   loginUnitValidation,
+  createUnitValidation,
   validate,
 } = require("../middleware/validators/unitValidator");
-
-// =========================
-// Unit Login
-// =========================
 
 router.post(
   "/login",
@@ -34,10 +31,6 @@ router.post(
   loginUnit
 );
 
-// =========================
-// Get All Units
-// =========================
-
 router.get(
   "/",
   protect,
@@ -45,34 +38,26 @@ router.get(
   getAllUnits
 );
 
-// =========================
-// Logged In Unit Profile
-// =========================
-
 router.get(
   "/me",
   protect,
+  authorize("unit"),
   getMyProfile
 );
-
-// =========================
-// Current Assigned Mission
-// =========================
 
 router.get(
   "/my-mission",
   protect,
+  authorize("unit"),
   getCurrentMission
 );
-
-// =========================
-// Create Unit
-// =========================
 
 router.post(
   "/",
   protect,
   authorize("admin"),
+  createUnitValidation,
+  validate,
   createUnit
 );
 

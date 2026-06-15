@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 
 import api from "../../services/api";
+import socket from "../../services/socket";
 
 import { useNavigate } from "react-router-dom";
 import PrimaryButton from "../../components/ui/PrimaryButton";
@@ -22,6 +23,26 @@ const AdminUnits = () => {
   useEffect(() => {
 
     fetchUnits();
+
+    socket.on(
+
+      "incidentUpdated",
+
+      fetchUnits
+
+    );
+
+    return () => {
+
+      socket.off(
+
+        "incidentUpdated",
+
+        fetchUnits
+
+      );
+
+    };
 
   }, []);
 
@@ -177,6 +198,18 @@ const AdminUnits = () => {
 
                       </span>
 
+                      <span className="mt-2 text-gray-600">
+
+                        Location:
+
+                        {
+
+                          unit.currentLocation.areaName
+
+                        }
+
+                      </span>
+
                       <span className="rounded bg-yellow-100 px-3 py-1">
 
                         Availability:
@@ -207,7 +240,7 @@ const AdminUnits = () => {
 
                         unit.currentMission
 
-                          ? unit.currentMission
+                          ? unit.currentMission.title
 
                           : "None"
 

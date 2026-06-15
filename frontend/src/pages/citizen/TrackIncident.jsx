@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 
 import api from "../../services/api";
+import socket from "../../services/socket";
 
 const TrackIncident = () => {
 
@@ -15,6 +16,20 @@ const TrackIncident = () => {
   useEffect(() => {
 
     fetchLatestIncident();
+
+    socket.on(
+      "incidentUpdated",
+      fetchLatestIncident
+    );
+
+    return () => {
+
+      socket.off(
+        "incidentUpdated",
+        fetchLatestIncident
+      );
+
+    };
 
   }, []);
 
@@ -105,11 +120,17 @@ const TrackIncident = () => {
 
             </h2>
 
-            <p className="mt-3 text-gray-600">
+            {
+              incident.description && (
 
-              {incident.description}
+                <p className="mt-3 text-gray-600">
 
-            </p>
+                  {incident.description}
+
+                </p>
+
+              )
+            }
 
             <div className="mt-6 flex flex-wrap gap-3">
 
@@ -146,7 +167,7 @@ const TrackIncident = () => {
                 {[
                   "REPORTED",
                   "ASSIGNED",
-                  "EN_ROUTE",
+                  "ON_THE_WAY",
                   "ARRIVED",
                   "RESOLVED",
                 ].map((step) => {
@@ -222,25 +243,6 @@ const TrackIncident = () => {
 
                   incident.location
                     ?.areaName
-
-                }
-
-              </p>
-
-              <p className="mt-2">
-
-                <strong>
-
-                  Node:
-
-                </strong>
-
-                {" "}
-
-                {
-
-                  incident.location
-                    ?.nodeId
 
                 }
 

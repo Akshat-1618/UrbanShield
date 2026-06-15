@@ -27,21 +27,7 @@ const CreateUnit = () => {
 
       availability: true,
 
-      currentLocation: {
-
-        nodeId: "",
-
-        areaName: "",
-
-        coordinates: {
-
-          lat: "",
-
-          lng: "",
-
-        },
-
-      },
+      areaName: "Sector 18",
 
     });
 
@@ -56,54 +42,6 @@ const CreateUnit = () => {
     });
 
   };
-
-  const handleLocation = (e) => {
-
-    setFormData({
-
-      ...formData,
-
-      currentLocation: {
-
-        ...formData.currentLocation,
-
-        [e.target.name]:
-          e.target.value,
-
-      },
-
-    });
-
-  };
-
-  const handleCoordinates =
-    (e) => {
-
-      setFormData({
-
-        ...formData,
-
-        currentLocation: {
-
-          ...formData.currentLocation,
-
-          coordinates: {
-
-            ...formData.currentLocation
-              .coordinates,
-
-            [e.target.name]:
-              Number(
-                e.target.value
-              ),
-
-          },
-
-        },
-
-      });
-
-    };
 
   const handleSubmit =
     async (e) => {
@@ -214,41 +152,74 @@ const CreateUnit = () => {
 
           </select>
 
-          <input
+          <select
             className="w-full rounded border p-3"
-            placeholder="Node ID"
-            name="nodeId"
-            onChange={handleLocation}
-            required
-          />
-
-          <input
-            className="w-full rounded border p-3"
-            placeholder="Area Name"
             name="areaName"
-            onChange={handleLocation}
-            required
-          />
+            value={formData.areaName}
+            onChange={handleChange}
+          >
 
-          <input
-            className="w-full rounded border p-3"
-            placeholder="Latitude"
-            name="lat"
-            type="number"
-            step="any"
-            onChange={handleCoordinates}
-            required
-          />
+            <option value="Sector 18">Sector 18</option>
 
-          <input
-            className="w-full rounded border p-3"
-            placeholder="Longitude"
-            name="lng"
-            type="number"
-            step="any"
-            onChange={handleCoordinates}
-            required
-          />
+            <option value="Sector 16">Sector 16</option>
+
+            <option value="Botanical Garden">
+              Botanical Garden
+            </option>
+
+            <option value="Noida City Centre">
+              Noida City Centre
+            </option>
+
+            <option value="Atta Market">
+              Atta Market
+            </option>
+
+            <option value="District Hospital">
+              District Hospital
+            </option>
+
+            <option value="Fire Headquarters">
+              Fire Headquarters
+            </option>
+
+            <option value="Police Headquarters">
+              Police Headquarters
+            </option>
+
+            <option value="Sector 62">
+              Sector 62
+            </option>
+
+            <option value="Film City">
+              Film City
+            </option>
+
+            <option value="Sector 137">
+              Sector 137
+            </option>
+
+            <option value="Metro Depot">
+              Metro Depot
+            </option>
+
+            <option value="Pari Chowk">
+              Pari Chowk
+            </option>
+
+            <option value="Knowledge Park">
+              Knowledge Park
+            </option>
+
+            <option value="Expo Mart">
+              Expo Mart
+            </option>
+
+            <option value="Bus Terminal">
+              Bus Terminal
+            </option>
+
+          </select>
 
           <button
             disabled={loading}

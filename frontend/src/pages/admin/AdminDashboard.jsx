@@ -1,18 +1,13 @@
 import { useNavigate } from "react-router-dom";
-
 import DashboardLayout from "../../components/layout/DashboardLayout";
-
 import PrimaryButton from "../../components/ui/PrimaryButton";
-
 import StatCard from "../../components/ui/StatCard";
-
 import { useAuth } from "../../context/AuthContext";
-
 import { useState, useEffect } from "react";
-
 import toast from "react-hot-toast";
 
 import api from "../../services/api";
+import socket from "../../services/socket";
 
 const AdminDashboard = () => {
 
@@ -30,7 +25,10 @@ const AdminDashboard = () => {
 
   availableUnits: 0,
 
-});
+  });
+
+  const [priorityQueue, setPriorityQueue] =
+  useState([]);
 
 const fetchDashboardData = async () => {
 
@@ -60,27 +58,27 @@ const fetchDashboardData = async () => {
 
       ).length;
 
-    const activeIncidents =
-      totalIncidents - resolvedIncidents;
+    const activeIncidents = incidents.filter((incident) => incident.status !== "RESOLVED").length;
 
-    const availableUnits =
-      units.filter(
-
+    const availableUnits =units.filter(
         (unit) => unit.availability
-
       ).length;
 
     setStats({
-
       totalIncidents,
-
       activeIncidents,
-
       resolvedIncidents,
-
       availableUnits,
-
     });
+
+    const dispatcherRes =
+      await api.get(
+        "/dispatcher/queue"
+      );
+
+    setPriorityQueue(
+      dispatcherRes.data.data
+    );
 
   } catch {
 
@@ -94,9 +92,23 @@ const fetchDashboardData = async () => {
 
 useEffect(() => {
 
-  fetchDashboardData();
+    fetchDashboardData();
 
-}, []);
+    socket.on(
+      "incidentUpdated",
+      fetchDashboardData
+    );
+
+    return () => {
+
+      socket.off(
+        "incidentUpdated",
+        fetchDashboardData
+      );
+
+    };
+
+  }, []);
 
   return (
 
@@ -160,6 +172,94 @@ useEffect(() => {
         />
 
       </div>
+
+      <div className="mt-10 rounded-xl bg-white p-6 shadow">
+
+      <h2 className="mb-5 text-2xl font-semibold">
+
+        Priority Dispatch Queue
+
+      </h2>
+
+      {
+
+        priorityQueue.length === 0 ? (
+
+          <div className="rounded-lg border border-dashed p-8 text-center text-gray-500">
+
+            No pending incidents.
+
+          </div>
+
+        ) : (
+
+          <div className="space-y-4">
+
+            {
+
+              priorityQueue.map(
+
+                (incident, index) => (
+
+                  <div
+
+                    key={incident._id}
+
+                    className="flex items-center justify-between rounded-lg border p-4"
+
+                  >
+
+                    <div>
+
+                      <h3 className="text-lg font-semibold">
+
+                        #{index + 1}
+
+                        {" "}
+
+                        {incident.title}
+
+                      </h3>
+
+                      <p className="text-sm text-gray-500">
+
+                        {incident.type}
+
+                      </p>
+
+                    </div>
+
+                    <div className="text-right">
+
+                      <p className="font-bold">
+
+                        Severity
+
+                      </p>
+
+                      <p className="text-red-600">
+
+                        {incident.severity}
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                )
+
+              )
+
+            }
+
+          </div>
+
+        )
+
+      }
+
+    </div>
 
       <div className="mt-10 rounded-xl bg-white p-6 shadow">
 

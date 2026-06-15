@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import api from "../../services/api";
+import socket from "../../services/socket";
 
 const CitizenDashboard = () => {
 
@@ -56,7 +57,14 @@ const CitizenDashboard = () => {
           ).length;
 
         const active =
-          total - resolved;
+          incidents.filter(
+
+            (incident) =>
+
+              incident.status !==
+              "RESOLVED"
+
+          ).length;
 
         setStats({
 
@@ -81,6 +89,20 @@ const CitizenDashboard = () => {
   useEffect(() => {
 
     fetchStats();
+
+    socket.on(
+      "incidentUpdated",
+      fetchStats
+    );
+
+    return () => {
+
+      socket.off(
+        "incidentUpdated",
+        fetchStats
+      );
+
+    };
 
   }, []);
 
@@ -142,17 +164,7 @@ const CitizenDashboard = () => {
 
         />
 
-        <StatCard
-
-          title="Emergency Alerts"
-
-          value="0"
-
-        />
-
       </div>
-
-      {/* Quick Actions */}
 
       <div className="mt-10 rounded-xl bg-white p-6 shadow">
 

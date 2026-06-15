@@ -1,12 +1,8 @@
 const Incident = require("../models/Incident");
 const Unit = require("../models/Unit");
-
-const {
-  findShortestPath,
-} = require("../algorithms/dijkstra");
-
-const dispatcher =
-require("../algorithms/dispatcher");
+const {findShortestPath} = require("../algorithms/dijkstra");
+const cityGraph = require("../algorithms/cityGraph");
+const dispatcher = require("../algorithms/dispatcher");
 
 const severityMap = {
   LOW: 3,
@@ -19,62 +15,91 @@ exports.createIncident = async (req, res) => {
   try {
     const {
       title,
-      description,
+      description = "",
       type,
       priority,
-      nodeId,
       areaName,
-      coordinates,
     } = req.body;
 
-    const { lat, lng } = coordinates;
-
-    const severity = severityMap[priority];
+    const severity =
+      severityMap[priority];
 
     if (!severity) {
       return res.status(400).json({
         success: false,
-        message: "Invalid priority level",
+        message:
+          "Invalid priority level",
       });
     }
 
-    const incident = await Incident.create({
-      title,
-      description,
-      type,
-      severity,
+    const selectedNode =
+      Object.entries(
+        cityGraph.nodes
+      ).find(
+        ([nodeId, node]) =>
+          node.name === areaName
+      );
 
-      location: {
-        nodeId,
-        areaName,
-        coordinates: {
-          lat,
-          lng,
+    if (!selectedNode) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid area selected",
+      });
+    }
+
+    const [nodeId, nodeData] =
+      selectedNode;
+
+    const incident =
+      await Incident.create({
+        title,
+        description,
+        type,
+        severity,
+        location: {
+          nodeId,
+          areaName,
+          coordinates: {
+            lat: nodeData.lat,
+            lng: nodeData.lng,
+          },
         },
-      },
+        status: "REPORTED",
+        statusHistory: [
+          {
+            status:"REPORTED",
+          },
+        ],
+        createdBy:
+          req.user.id,
+      });
 
-      status: "REPORTED",
+    dispatcher.addIncident(
+      incident
+    );
 
-      statusHistory: [
-        {
-          status: "REPORTED",
-        },
-      ],
+    const io =
+      req.app.get("io");
 
-      createdBy: req.user.id,
-    });
-
-    dispatcher.addIncident(incident);
+    io.emit(
+      "incidentUpdated"
+    );
 
     return res.status(201).json({
       success: true,
-      message: "Incident created successfully",
+
+      message:
+        "Incident created successfully",
+
       incident,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+
+      message:
+        error.message,
     });
   }
 };
@@ -177,8 +202,6 @@ exports.assignUnit = async (req, res) => {
       });
     }
 
-    // Update Incident
-
     incident.assignedUnit = unit._id;
     incident.status = "ASSIGNED";
 
@@ -188,8 +211,6 @@ exports.assignUnit = async (req, res) => {
 
     await incident.save();
 
-    // Update Unit
-
     unit.currentMission = incident._id;
     unit.status = "ASSIGNED";
     unit.availability = false;
@@ -197,6 +218,12 @@ exports.assignUnit = async (req, res) => {
     await unit.save();
 
     dispatcher.removeIncident(incident._id);
+
+    const io = req.app.get("io");
+
+    io.emit(
+      "incidentUpdated"
+    );
 
     return res.status(200).json({
       success: true,
@@ -244,10 +271,6 @@ exports.autoAssignUnit = async (req, res) => {
 
     }
 
-    // =====================================
-    // Decide Required Unit Type
-    // =====================================
-
     let requiredUnitType;
 
     switch (incident.type) {
@@ -278,10 +301,6 @@ exports.autoAssignUnit = async (req, res) => {
 
     }
 
-    // =====================================
-    // Get All Available Units
-    // =====================================
-
     const availableUnits = await Unit.find({
 
       availability: true,
@@ -302,10 +321,6 @@ exports.autoAssignUnit = async (req, res) => {
 
     }
 
-    // =====================================
-    // Find Best Unit Using Dijkstra
-    // =====================================
-
     let bestUnit = null;
 
     let bestRoute = null;
@@ -313,19 +328,6 @@ exports.autoAssignUnit = async (req, res) => {
     let minimumCost = Infinity;
 
     for (const currentUnit of availableUnits) {
-
-      console.log(
-  "Checking Unit:",
-  currentUnit.unitName
-);
-
-console.log(
-  currentUnit.currentLocation.nodeId
-);
-
-console.log(
-  incident.location.nodeId
-);
 
       const currentRoute = findShortestPath(
 
@@ -347,22 +349,6 @@ console.log(
 
     }
 
-    console.log(
-  bestUnit
-);
-
-console.log(
-  bestRoute
-);
-
-console.log(
-  minimumCost
-);
-
-    // =====================================
-    // Assign Selected Unit
-    // =====================================
-
     incident.assignedUnit = bestUnit._id;
 
     incident.status = "ASSIGNED";
@@ -375,10 +361,6 @@ console.log(
 
     await incident.save();
 
-    // =====================================
-    // Update Unit
-    // =====================================
-
     bestUnit.currentMission = incident._id;
 
     bestUnit.status = "ASSIGNED";
@@ -387,19 +369,17 @@ console.log(
 
     await bestUnit.save();
 
-    // =====================================
-    // Remove From Priority Queue
-    // =====================================
-
     dispatcher.removeIncident(
 
       incident._id
 
     );
 
-    // =====================================
-    // Response
-    // =====================================
+    const io = req.app.get("io");
+
+    io.emit(
+      "incidentUpdated"
+    );
 
     return res.status(200).json({
 
@@ -420,6 +400,8 @@ console.log(
       shortestDistance: minimumCost,
 
       route: bestRoute,
+
+      pathLength: bestRoute.path.length,
 
     });
 
@@ -445,7 +427,7 @@ exports.updateIncidentStatus = async (req, res) => {
     const { status } = req.body;
 
     const allowedStatuses = [
-      "EN_ROUTE",
+      "ON_THE_WAY",
       "ARRIVED",
       "RESOLVED",
     ];
@@ -468,15 +450,11 @@ exports.updateIncidentStatus = async (req, res) => {
       });
     }
 
-    // -----------------------------
-    // Validate Transition
-    // -----------------------------
-
     const validTransitions = {
 
-      ASSIGNED: ["EN_ROUTE"],
+      ASSIGNED: ["ON_THE_WAY"],
 
-      EN_ROUTE: ["ARRIVED"],
+      ON_THE_WAY: ["ARRIVED"],
 
       ARRIVED: ["RESOLVED"],
 
@@ -506,10 +484,6 @@ exports.updateIncidentStatus = async (req, res) => {
 
     }
 
-    // -----------------------------
-    // Update Incident
-    // -----------------------------
-
     incident.status = status;
 
     incident.statusHistory.push({
@@ -517,10 +491,6 @@ exports.updateIncidentStatus = async (req, res) => {
     });
 
     await incident.save();
-
-    // -----------------------------
-    // Update Unit
-    // -----------------------------
 
     if (incident.assignedUnit) {
 
@@ -532,11 +502,11 @@ exports.updateIncidentStatus = async (req, res) => {
       if (unit) {
 
         if (
-          status === "EN_ROUTE"
+          status === "ON_THE_WAY"
         ) {
 
           unit.status =
-            "EN_ROUTE";
+            "ON_THE_WAY";
 
         }
 
@@ -569,6 +539,10 @@ exports.updateIncidentStatus = async (req, res) => {
       }
 
     }
+
+    const io = req.app.get("io");
+
+    io.emit("incidentUpdated");
 
     return res.status(200).json({
 

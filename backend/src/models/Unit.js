@@ -65,9 +65,8 @@ const unitSchema = new mongoose.Schema(
       enum: [
       "IDLE",
       "ASSIGNED",
-      "EN_ROUTE",
+      "ON_THE_WAY",
       "BUSY",
-      "OFFLINE",
     ],
       default: "IDLE",
     },

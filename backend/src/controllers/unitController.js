@@ -1,10 +1,7 @@
 const Unit = require("../models/Unit");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
-// ================================
-// Create Unit (Admin)
-// ================================
+const cityGraph = require("../algorithms/cityGraph");
 
 exports.createUnit = async (req, res) => {
   try {
@@ -13,60 +10,88 @@ exports.createUnit = async (req, res) => {
       email,
       password,
       unitType,
-      availability,
-      currentLocation,
+      areaName,
     } = req.body;
 
-    const existingUnit = await Unit.findOne({
-      email,
-    });
-
+    const existingUnit =
+      await Unit.findOne({email});
     if (existingUnit) {
       return res.status(400).json({
         success: false,
-        message: "Unit already exists",
+        message:"Unit already exists",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(
-      password,
-      10
-    );
+    const selectedNode =
+      Object.entries(
+        cityGraph.nodes
+      ).find(
+        ([nodeId, node]) =>
+          node.name === areaName
+      );
 
-    const unit = await Unit.create({
-      unitName,
-      email,
-      password: hashedPassword,
-      unitType,
-      availability,
-      currentLocation,
-    });
+    if (!selectedNode) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid area selected",
+      });
+    }
+    const [
+      nodeId,
+      nodeData,
+    ] = selectedNode;
+
+    const hashedPassword =
+      await bcrypt.hash(
+        password,
+        10
+      );
+
+    const unit =
+      await Unit.create({
+        unitName,
+        email,
+        password:hashedPassword,
+        unitType,
+        availability: true,
+        currentLocation: {
+          nodeId,
+          areaName,
+          coordinates: {
+            lat:
+              nodeData.lat,
+            lng:
+              nodeData.lng,
+          },
+        },
+      });
 
     return res.status(201).json({
       success: true,
-      message: "Unit created successfully",
-
+      message:
+        "Unit created successfully",
       data: {
         id: unit._id,
-        unitName: unit.unitName,
-        email: unit.email,
-        unitType: unit.unitType,
+        unitName:
+          unit.unitName,
+        email:
+          unit.email,
+        unitType:
+          unit.unitType,
+        currentLocation:
+          unit.currentLocation,
       },
     });
+  }
 
-  } catch (error) {
-
+  catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message:
+        error.message,
     });
-
   }
 };
-
-// ================================
-// Unit Login
-// ================================
 
 exports.loginUnit = async (req, res) => {
   try {
@@ -135,10 +160,6 @@ exports.loginUnit = async (req, res) => {
   }
 };
 
-// ================================
-// Get All Units (Admin)
-// ================================
-
 exports.getAllUnits = async (req, res) => {
   try {
 
@@ -168,10 +189,6 @@ exports.getAllUnits = async (req, res) => {
 
   }
 };
-
-// ================================
-// Get Logged In Unit Profile
-// ================================
 
 exports.getMyProfile = async (req, res) => {
   try {
@@ -206,10 +223,6 @@ exports.getMyProfile = async (req, res) => {
 
   }
 };
-
-// ================================
-// Get Current Assigned Mission
-// ================================
 
 exports.getCurrentMission = async (req, res) => {
   try {

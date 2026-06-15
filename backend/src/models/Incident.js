@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const incidentSchema = new mongoose.Schema(
-  {
+const incidentSchema = new mongoose.Schema({
+
     title: {
       type: String,
       required: true,
@@ -10,7 +10,8 @@ const incidentSchema = new mongoose.Schema(
 
     description: {
       type: String,
-      required: true,
+      default: "",
+      trim: true,
     },
 
     type: {
@@ -61,7 +62,7 @@ const incidentSchema = new mongoose.Schema(
       enum: [
         "REPORTED",
         "ASSIGNED",
-        "EN_ROUTE",
+        "ON_THE_WAY",
         "ARRIVED",
         "RESOLVED",
       ],
@@ -75,7 +76,7 @@ const incidentSchema = new mongoose.Schema(
           enum: [
             "REPORTED",
             "ASSIGNED",
-            "EN_ROUTE",
+            "ON_THE_WAY",
             "ARRIVED",
             "RESOLVED",
           ],

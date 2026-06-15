@@ -118,21 +118,6 @@ const Login = () => {
 
         }
 
-        else if (
-
-          role ===
-          "unit"
-
-        ) {
-
-          navigate(
-
-            "/unit/dashboard"
-
-          );
-
-        }
-
         else {
 
           navigate(

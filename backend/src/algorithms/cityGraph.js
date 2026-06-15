@@ -1,7 +1,4 @@
 const cityGraph = {
-  // =====================================
-  // SMART CITY LOCATIONS
-  // =====================================
 
   nodes: {
     N1: {
@@ -100,11 +97,6 @@ const cityGraph = {
       lng: 77.3124,
     },
   },
-
-  // =====================================
-  // ROAD NETWORK (ADJACENCY LIST)
-  // weight = distance * trafficMultiplier
-  // =====================================
 
   graph: {
     N1: [

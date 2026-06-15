@@ -2,19 +2,10 @@ const cityGraph = require("./cityGraph");
 
 const findShortestPath = (startNode, endNode) => {
 
-  console.log(
-  "START",
-  startNode,
-  endNode
-);
-
   const graph = cityGraph.graph;
-
   const distances = {};
   const previous = {};
   const visited = new Set();
-
-  // Initialize
 
   for (const node in graph) {
 
@@ -30,58 +21,35 @@ const findShortestPath = (startNode, endNode) => {
     let currentNode = null;
     let minDistance = Infinity;
 
-    // Find nearest unvisited node
-
     for (const node in distances) {
 
-      if (
-        !visited.has(node) &&
-        distances[node] < minDistance
-      ) {
-
+      if (!visited.has(node) && distances[node] < minDistance) 
+        {
         minDistance = distances[node];
         currentNode = node;
-
       }
-
     }
-
-    // No path
 
     if (currentNode === null) {
       break;
     }
 
-    // Destination reached
+    visited.add(currentNode);
 
     if (currentNode === endNode) {
       break;
     }
 
-    visited.add(currentNode);
+    for (const neighbour of graph[currentNode]){
 
-    // Relax neighbours
+      const effectiveWeight = neighbour.distance * neighbour.trafficMultiplier;
 
-    for (const neighbour of graph[currentNode]) {
+      const newDistance = distances[currentNode] + effectiveWeight;
 
-      const effectiveWeight =
-        neighbour.distance *
-        neighbour.trafficMultiplier;
+      if (newDistance < distances[neighbour.to]){
 
-      const newDistance =
-        distances[currentNode] +
-        effectiveWeight;
-
-      if (
-        newDistance <
-        distances[neighbour.to]
-      ) {
-
-        distances[neighbour.to] =
-          newDistance;
-
-        previous[neighbour.to] =
-          currentNode;
+        distances[neighbour.to] = newDistance;
+        previous[neighbour.to] = currentNode;
 
       }
 
@@ -89,7 +57,6 @@ const findShortestPath = (startNode, endNode) => {
 
   }
 
-  // Build shortest path
 
   const path = [];
 
@@ -99,16 +66,9 @@ const findShortestPath = (startNode, endNode) => {
 
     path.unshift(current);
 
-    current =
-      previous[current];
+    current = previous[current];
 
   }
-
-  console.log(
-  "END",
-  distances[endNode],
-  path
-);
 
   return {
 
