@@ -1,6 +1,6 @@
 const Incident = require("../models/Incident");
 const Unit = require("../models/Unit");
-const {findShortestPath} = require("../algorithms/dijkstra");
+const {findShortestPath} = require("../algorithms/floyd");
 const cityGraph = require("../algorithms/cityGraph");
 const dispatcher = require("../algorithms/dispatcher");
 

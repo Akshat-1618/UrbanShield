@@ -100,111 +100,122 @@ const cityGraph = {
 
   graph: {
     N1: [
-      { to: "N2", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N5", distance: 2, trafficMultiplier: 1.1 },
-      { to: "N6", distance: 3, trafficMultiplier: 1.2 },
+      { to: "N2", distance: 2},
+      { to: "N5", distance: 2},
+      { to: "N6", distance: 3},
     ],
 
     N2: [
-      { to: "N1", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N3", distance: 3, trafficMultiplier: 1.3 },
-      { to: "N6", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N7", distance: 4, trafficMultiplier: 1.2 },
+      { to: "N1", distance: 2},
+      { to: "N3", distance: 3},
+      { to: "N6", distance: 2},
+      { to: "N7", distance: 4},
     ],
 
     N3: [
-      { to: "N2", distance: 3, trafficMultiplier: 1.3 },
-      { to: "N4", distance: 4, trafficMultiplier: 1.1 },
-      { to: "N7", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N8", distance: 3, trafficMultiplier: 1.4 },
+      { to: "N2", distance: 3},
+      { to: "N4", distance: 4},
+      { to: "N7", distance: 2},
+      { to: "N8", distance: 3},
     ],
 
     N4: [
-      { to: "N3", distance: 4, trafficMultiplier: 1.1 },
-      { to: "N8", distance: 2, trafficMultiplier: 1.0 },
+      { to: "N3", distance: 4},
+      { to: "N8", distance: 2},
     ],
 
     N5: [
-      { to: "N1", distance: 2, trafficMultiplier: 1.1 },
-      { to: "N6", distance: 3, trafficMultiplier: 1.0 },
-      { to: "N9", distance: 4, trafficMultiplier: 1.2 },
-      { to: "N10", distance: 3, trafficMultiplier: 1.0 },
+      { to: "N1", distance: 2},
+      { to: "N6", distance: 3},
+      { to: "N9", distance: 4},
+      { to: "N10", distance: 3},
     ],
 
     N6: [
-      { to: "N1", distance: 3, trafficMultiplier: 1.2 },
-      { to: "N2", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N5", distance: 3, trafficMultiplier: 1.0 },
-      { to: "N7", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N10", distance: 3, trafficMultiplier: 1.1 },
-      { to: "N11", distance: 5, trafficMultiplier: 1.3 },
+      { to: "N1", distance: 3},
+      { to: "N2", distance: 2},
+      { to: "N5", distance: 3},
+      { to: "N7", distance: 2},
+      { to: "N10", distance: 3},
+      { to: "N11", distance: 5},
     ],
 
     N7: [
-      { to: "N2", distance: 4, trafficMultiplier: 1.2 },
-      { to: "N3", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N6", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N8", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N11", distance: 3, trafficMultiplier: 1.2 },
+      { to: "N2", distance: 4},
+      { to: "N3", distance: 2},
+      { to: "N6", distance: 2},
+      { to: "N8", distance: 2},
+      { to: "N11", distance: 3},
     ],
 
     N8: [
-      { to: "N3", distance: 3, trafficMultiplier: 1.4 },
-      { to: "N4", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N7", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N12", distance: 4, trafficMultiplier: 1.2 },
+      { to: "N3", distance: 3},
+      { to: "N4", distance: 2},
+      { to: "N7", distance: 2},
+      { to: "N12", distance: 4},
     ],
 
     N9: [
-      { to: "N5", distance: 4, trafficMultiplier: 1.2 },
-      { to: "N10", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N13", distance: 5, trafficMultiplier: 1.1 },
+      { to: "N5", distance: 4},
+      { to: "N10", distance: 2},
+      { to: "N13", distance: 5},
     ],
 
     N10: [
-      { to: "N5", distance: 3, trafficMultiplier: 1.0 },
-      { to: "N6", distance: 3, trafficMultiplier: 1.1 },
-      { to: "N9", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N11", distance: 2, trafficMultiplier: 1.2 },
-      { to: "N14", distance: 5, trafficMultiplier: 1.3 },
+      { to: "N5", distance: 3},
+      { to: "N6", distance: 3},
+      { to: "N9", distance: 2},
+      { to: "N11", distance: 2},
+      { to: "N14", distance: 5},
     ],
 
     N11: [
-      { to: "N6", distance: 5, trafficMultiplier: 1.3 },
-      { to: "N7", distance: 3, trafficMultiplier: 1.2 },
-      { to: "N10", distance: 2, trafficMultiplier: 1.2 },
-      { to: "N12", distance: 3, trafficMultiplier: 1.0 },
-      { to: "N15", distance: 4, trafficMultiplier: 1.1 },
+      { to: "N6", distance: 5},
+      { to: "N7", distance: 3},
+      { to: "N10", distance: 2},
+      { to: "N12", distance: 3},
+      { to: "N15", distance: 4},
     ],
 
     N12: [
-      { to: "N8", distance: 4, trafficMultiplier: 1.2 },
-      { to: "N11", distance: 3, trafficMultiplier: 1.0 },
-      { to: "N16", distance: 5, trafficMultiplier: 1.2 },
+      { to: "N8", distance: 4},
+      { to: "N11", distance: 3},
+      { to: "N16", distance: 5},
     ],
 
     N13: [
-      { to: "N9", distance: 5, trafficMultiplier: 1.1 },
-      { to: "N14", distance: 2, trafficMultiplier: 1.0 },
+      { to: "N9", distance: 5},
+      { to: "N14", distance: 2},
     ],
 
     N14: [
-      { to: "N10", distance: 5, trafficMultiplier: 1.3 },
-      { to: "N13", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N15", distance: 2, trafficMultiplier: 1.0 },
+      { to: "N10", distance: 5},
+      { to: "N13", distance: 2},
+      { to: "N15", distance: 2},
     ],
 
     N15: [
-      { to: "N11", distance: 4, trafficMultiplier: 1.1 },
-      { to: "N14", distance: 2, trafficMultiplier: 1.0 },
-      { to: "N16", distance: 3, trafficMultiplier: 1.2 },
+      { to: "N11", distance: 4},
+      { to: "N14", distance: 2},
+      { to: "N16", distance: 3},
     ],
 
     N16: [
-      { to: "N12", distance: 5, trafficMultiplier: 1.2 },
-      { to: "N15", distance: 3, trafficMultiplier: 1.2 },
+      { to: "N12", distance: 5},
+      { to: "N15", distance: 3},
     ],
   },
 };
+
+const getNodeByAreaName = (areaName) => {
+
+  return Object.entries(cityGraph.nodes).find(
+    ([, node]) => node.name === areaName
+  );
+
+};
+
+cityGraph.getNodeByAreaName =
+  getNodeByAreaName;
 
 module.exports = cityGraph;

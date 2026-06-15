@@ -25,7 +25,7 @@ const StatsSection = () => {
 
           <h2 className="text-4xl font-bold text-blue-600">
 
-            BFS + Dijkstra
+            BFS + Floyd Warshall
 
           </h2>
 

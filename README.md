@@ -31,5 +31,5 @@ Realtime:
 
 Algorithms:
 - BFS
-- Dijkstra
+- Floyd Warshall
 - Priority Queue
