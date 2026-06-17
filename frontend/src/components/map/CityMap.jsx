@@ -99,39 +99,6 @@ const incidentIcon = divIcon({
 
 });
 
-const routeCoordinates = useMemo(() => {
-
-  if (!route || route.length === 0) {
-
-    return [];
-
-  }
-
-  return route
-    .map((nodeId) => {
-
-      const node = cityGraph.nodes[nodeId];
-
-      if (!node) {
-
-        return null;
-
-      }
-
-      return [
-
-        node.lat,
-
-        node.lng,
-
-      ];
-
-    })
-
-    .filter(Boolean);
-
-}, [route]);
-
 const CityMap = ({
 
     units = [],
@@ -143,6 +110,39 @@ const CityMap = ({
     showNodes = true,
 
   }) => {
+
+    const routeCoordinates = useMemo(() => {
+
+      if (!route || route.length === 0) {
+
+        return [];
+
+      }
+
+      return route
+        .map((nodeId) => {
+
+          const node = cityGraph.nodes[nodeId];
+
+          if (!node) {
+
+            return null;
+
+          }
+
+          return [
+
+            node.lat,
+
+            node.lng,
+
+          ];
+
+        })
+
+        .filter(Boolean);
+
+    }, [route]);
 
   return (
 

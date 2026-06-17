@@ -7,7 +7,7 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import api from "../../services/api";
 import socket from "../../services/socket";
 
-import CityMap from "../../components/CityMap";
+import CityMap from "../../components/map/CityMap";
 
 const TrackIncident = () => {
 
