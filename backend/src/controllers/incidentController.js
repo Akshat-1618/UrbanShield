@@ -213,6 +213,15 @@ exports.assignUnit = async (req, res) => {
 
     unit.currentMission = incident._id;
     unit.status = "ASSIGNED";
+    const bestRoute = findShortestPath(
+
+      unit.currentLocation.nodeId,
+
+      incident.location.nodeId
+
+    );
+
+    incident.route = bestRoute.path;
     unit.availability = false;
 
     await unit.save();
@@ -352,6 +361,8 @@ exports.autoAssignUnit = async (req, res) => {
     incident.assignedUnit = bestUnit._id;
 
     incident.status = "ASSIGNED";
+
+    incident.route = bestRoute.path;
 
     incident.statusHistory.push({
 

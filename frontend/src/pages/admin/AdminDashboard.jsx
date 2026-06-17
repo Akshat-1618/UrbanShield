@@ -3,6 +3,8 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import StatCard from "../../components/ui/StatCard";
 import { useAuth } from "../../context/AuthContext";
+import CityMap from "../../components/map/CityMap";
+
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
@@ -26,6 +28,10 @@ const AdminDashboard = () => {
   availableUnits: 0,
 
   });
+
+  const [units, setUnits] = useState([]);
+
+  const [incidents, setIncidents] = useState([]);
 
   const [priorityQueue, setPriorityQueue] =
   useState([]);
@@ -79,6 +85,10 @@ const fetchDashboardData = async () => {
     setPriorityQueue(
       dispatcherRes.data.data
     );
+
+    setIncidents(incidents);
+
+    setUnits(units);
 
   } catch {
 
@@ -134,6 +144,26 @@ useEffect(() => {
           units and coordinate city response.
 
         </p>
+
+      </div>
+
+      <div className="mt-10 rounded-xl bg-white p-6 shadow">
+
+        <h2 className="mb-5 text-2xl font-semibold">
+
+          City Map
+
+        </h2>
+
+        <CityMap
+
+          units={units}
+
+          incidents={incidents}
+
+          showNodes={true}
+
+        />
 
       </div>
 

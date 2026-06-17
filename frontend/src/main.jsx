@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
+import "leaflet/dist/leaflet.css";
+
 import App from "./App";
 
 import "./index.css";

@@ -100,6 +100,12 @@ const incidentSchema = new mongoose.Schema({
       ref: "Unit",
       default: null,
     },
+
+    route: {
+      type: [String],
+      default: [],
+    },
+
   },
   {
     timestamps: true,

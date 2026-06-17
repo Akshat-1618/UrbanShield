@@ -220,4 +220,4 @@ const getNodeByAreaName = (areaName) => {
 cityGraph.getNodeByAreaName =
   getNodeByAreaName;
 
-module.exports = cityGraph;
+export default cityGraph;

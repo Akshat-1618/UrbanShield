@@ -7,6 +7,8 @@ import PrimaryButton from "../../components/ui/PrimaryButton";
 import api from "../../services/api";
 import socket from "../../services/socket";
 
+import CityMap from "../../components/CityMap";
+
 const UnitDashboard = () => {
 
   const [unit, setUnit] = useState(null);
@@ -120,6 +122,18 @@ const UnitDashboard = () => {
         </p>
 
       </div>
+
+      <CityMap
+
+        units={unit ? [unit] : []}
+
+        incidents={mission ? [mission] : []}
+
+        route={mission?.route || []}
+
+        showNodes={true}
+
+      />
 
       <div className="rounded-xl bg-white p-6 shadow">
 

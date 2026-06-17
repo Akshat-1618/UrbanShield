@@ -7,6 +7,8 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import api from "../../services/api";
 import socket from "../../services/socket";
 
+import CityMap from "../../components/CityMap";
+
 const TrackIncident = () => {
 
   const [incident, setIncident] = useState(null);
@@ -99,6 +101,16 @@ const TrackIncident = () => {
         Track Active Incident
 
       </h1>
+
+      <CityMap
+
+        incidents={[incident]}
+
+        route={incident.route}
+
+        showNodes={true}
+
+      />
 
       {
 
