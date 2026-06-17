@@ -6,6 +6,9 @@ const helmet = require("helmet");
 const http = require("http");
 const { Server } = require("socket.io");
 
+const dns = require("dns");
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
+
 dotenv.config();
 
 const connectDB = require("./config/db");
