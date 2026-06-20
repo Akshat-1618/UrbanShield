@@ -47,10 +47,7 @@ const TrackIncident = () => {
       const incidents =
         res.data.data;
 
-      if (
-        incidents &&
-        incidents.length > 0
-      ) {
+      if (incidents && incidents.length > 0) {
 
         // Latest incident
 
@@ -58,6 +55,10 @@ const TrackIncident = () => {
           incidents[0]
         );
 
+      }
+
+      else{
+        setIncident(null);
       }
 
     }
@@ -103,13 +104,9 @@ const TrackIncident = () => {
       </h1>
 
       <CityMap
-
-        incidents={[incident]}
-
-        route={incident.route}
-
+        incidents={incident ? [incident] : []}
+        route={incident?.route || []}
         showNodes={true}
-
       />
 
       {
