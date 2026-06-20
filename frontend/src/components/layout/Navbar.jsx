@@ -32,11 +32,7 @@ const Navbar = () => {
 
             <span className="text-gray-700 font-medium">
 
-              Welcome,
-
-              {" "}
-
-              {user.name}
+              Welcome, {user?.name || user?.unitName}
 
             </span>
 

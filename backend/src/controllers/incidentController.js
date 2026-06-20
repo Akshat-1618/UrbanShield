@@ -447,6 +447,12 @@ exports.updateIncidentStatus = async (req, res) => {
           status === "ARRIVED"
         ) {
 
+          unit.currentLocation = {
+            nodeId: incident.location.nodeId,
+            areaName: incident.location.areaName,
+            coordinates: incident.location.coordinates,
+          };
+
           unit.status =
             "BUSY";
 
