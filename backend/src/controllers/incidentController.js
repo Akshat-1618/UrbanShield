@@ -11,6 +11,14 @@ const severityMap = {
   CRITICAL: 10,
 };
 
+const statusPriority = {
+  REPORTED: 1,
+  ASSIGNED: 2,
+  ON_THE_WAY: 3,
+  ARRIVED: 4,
+  RESOLVED: 5,
+};
+
 exports.createIncident = async (req, res) => {
   try {
     const {
@@ -135,6 +143,24 @@ exports.getAllIncidents = async (req, res) => {
       .populate("assignedUnit")
       .sort({ createdAt: -1 });
 
+    incidents.sort((a, b) => {
+
+      if (
+        statusPriority[a.status] !==
+        statusPriority[b.status]
+      ) {
+
+        return (
+          statusPriority[a.status] -
+          statusPriority[b.status]
+        );
+
+      }
+
+      return b.severity - a.severity;
+
+    });
+
     return res.status(200).json({
       success: true,
       count: incidents.length,
@@ -258,7 +284,7 @@ exports.autoAssignUnit = async (req, res) => {
 
     let minimumCost = Infinity;
 
-    for (const currentUnit of availableUnits) {
+    for (const currentUnit of availableUnits) { 
 
       const currentRoute = findShortestPath(
 
@@ -497,6 +523,43 @@ exports.updateIncidentStatus = async (req, res) => {
   }
 
   catch (error) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+
+    });
+
+  }
+
+};
+
+exports.getPendingIncidents = async (req, res) => {
+
+  try {
+
+    const incidents =
+      await Incident.find({
+        status: "REPORTED",
+      })
+      .sort({
+        severity: -1,
+        createdAt: 1,
+      });
+
+    return res.status(200).json({
+
+      success: true,
+
+      count: incidents.length,
+
+      data: incidents,
+
+    });
+
+  } catch (error) {
 
     return res.status(500).json({
 

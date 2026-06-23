@@ -77,13 +77,13 @@ const fetchDashboardData = async () => {
       availableUnits,
     });
 
-    const dispatcherRes =
+    const pendingRes =
       await api.get(
-        "/dispatcher/queue"
+        "/incidents/pending"
       );
 
     setPriorityQueue(
-      dispatcherRes.data.data
+      pendingRes.data.data
     );
 
     setIncidents(incidents);

@@ -3,6 +3,7 @@ const express = require("express");
 const {
   createIncident,
   getMyIncidents,
+  getPendingIncidents,
   getAllIncidents,
   getIncidentById,
   autoAssignUnit,
@@ -20,7 +21,6 @@ const {
 
 const router = express.Router();
 
-// Create Incident
 router.post(
   "/",
   protect,
@@ -29,14 +29,12 @@ router.post(
   createIncident
 );
 
-// Citizen - My Incidents
 router.get(
   "/my-incidents",
   protect,
   getMyIncidents
 );
 
-// Admin - All Incidents
 router.get(
   "/",
   protect,
@@ -58,7 +56,13 @@ router.patch(
   autoAssignUnit
 );
 
-// Get Incident By ID
+router.get(
+  "/pending",
+  protect,
+  authorize("admin"),
+  getPendingIncidents
+);
+
 router.get(
   "/:id",
   protect,

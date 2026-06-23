@@ -76,6 +76,18 @@ const findShortestPath = (
 
 ) => {
 
+  if (startNode === endNode) {
+
+    return {
+
+      totalCost: 0,
+
+      path: [startNode],
+
+    };
+
+  }
+
   if (
     !nextNode[startNode] ||
     !nextNode[startNode][endNode]
