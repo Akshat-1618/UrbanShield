@@ -106,6 +106,11 @@ const incidentSchema = new mongoose.Schema({
       default: [],
     },
 
+    routeDistance: {
+      type: Number,
+      default: 0,
+    },
+
   },
   {
     timestamps: true,

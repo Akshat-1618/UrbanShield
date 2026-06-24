@@ -66,7 +66,7 @@ const unitSchema = new mongoose.Schema(
       "IDLE",
       "ASSIGNED",
       "ON_THE_WAY",
-      "BUSY",
+      "RESCUING",
     ],
       default: "IDLE",
     },

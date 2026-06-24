@@ -13,8 +13,8 @@ exports.createUnit = async (req, res) => {
       areaName,
     } = req.body;
 
-    const existingUnit =
-      await Unit.findOne({email});
+    const existingUnit = await Unit.findOne({email});
+
     if (existingUnit) {
       return res.status(400).json({
         success: false,
@@ -22,13 +22,8 @@ exports.createUnit = async (req, res) => {
       });
     }
 
-    const selectedNode =
-      Object.entries(
-        cityGraph.nodes
-      ).find(
-        ([nodeId, node]) =>
-          node.name === areaName
-      );
+    const selectedNode = Object.entries(cityGraph.nodes).
+      find(([nodeId, node]) => node.name === areaName);
 
     if (!selectedNode) {
       return res.status(400).json({
@@ -95,7 +90,6 @@ exports.createUnit = async (req, res) => {
 
 exports.loginUnit = async (req, res) => {
   try {
-
     const {
       email,
       password,
@@ -139,9 +133,7 @@ exports.loginUnit = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Unit login successful",
-
       token,
-
       unit: {
         id: unit._id,
         unitName: unit.unitName,
@@ -162,29 +154,21 @@ exports.loginUnit = async (req, res) => {
 
 exports.getAllUnits = async (req, res) => {
   try {
-
-    const units = await Unit.find()
-      .select("-password")
+    const units = await Unit.find().select("-password")
+      .populate("currentMission","title status")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
-
       success: true,
-
       count: units.length,
-
       data: units,
-
     });
 
   } catch (error) {
 
     return res.status(500).json({
-
       success: false,
-
       message: error.message,
-
     });
 
   }
@@ -192,7 +176,6 @@ exports.getAllUnits = async (req, res) => {
 
 exports.getMyProfile = async (req, res) => {
   try {
-
     const unit = await Unit.findById(req.user.id)
       .select("-password");
 
@@ -204,21 +187,15 @@ exports.getMyProfile = async (req, res) => {
     }
 
     return res.status(200).json({
-
       success: true,
-
       data: unit,
-
     });
 
   } catch (error) {
 
     return res.status(500).json({
-
       success: false,
-
       message: error.message,
-
     });
 
   }
@@ -226,40 +203,26 @@ exports.getMyProfile = async (req, res) => {
 
 exports.getCurrentMission = async (req, res) => {
   try {
-
     const unit = await Unit.findById(req.user.id)
-      .populate(
-        "currentMission"
-      );
+      .populate("currentMission");
 
     if (!unit) {
-
       return res.status(404).json({
-
         success: false,
-
         message: "Unit not found",
-
       });
-
     }
 
     return res.status(200).json({
-
       success: true,
-
       data: unit.currentMission,
-
     });
 
   } catch (error) {
 
     return res.status(500).json({
-
       success: false,
-
       message: error.message,
-
     });
 
   }
