@@ -340,9 +340,9 @@ const CityMap = ({
 
             pathOptions={{
 
-              color: "blue",
-
-              weight: 5,
+              color: "#2563eb",
+              weight: 6,
+              opacity: 0.8
 
             }}
 

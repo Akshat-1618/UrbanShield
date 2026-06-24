@@ -11,73 +11,71 @@ import CityMap from "../../components/map/CityMap";
 
 const TrackIncident = () => {
 
-  const [incident, setIncident] = useState(null);
+  const [incidents, setIncidents] = useState([]);
+
+  const [selectedIncident, setSelectedIncident] =
+  useState(null);
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
-    fetchLatestIncident();
+    fetchIncidents();
 
     socket.on(
       "incidentUpdated",
-      fetchLatestIncident
+      fetchIncidents
     );
 
     return () => {
 
       socket.off(
         "incidentUpdated",
-        fetchLatestIncident
+        fetchIncidents
       );
 
     };
 
   }, []);
 
-  const fetchLatestIncident = async () => {
+  const fetchIncidents = async () => {
 
-    try {
+      try {
 
-      const res =
-        await api.get(
-          "/incidents/my-incidents"
-        );
+        const res =
+          await api.get(
+            "/incidents/my-incidents"
+          );
 
-      const incidents =
-        res.data.data;
+        const activeIncidents =
+          res.data.data.filter(
+            (incident) =>
+              incident.status !== "RESOLVED"
+          );
 
-      if (incidents && incidents.length > 0) {
+        setIncidents(activeIncidents);
 
-        // Latest incident
-
-        setIncident(
-          incidents[0]
+        setSelectedIncident(
+          activeIncidents[0] || null
         );
 
       }
 
-      else{
-        setIncident(null);
+      catch {
+
+        toast.error(
+          "Failed to fetch incidents"
+        );
+
       }
 
-    }
+      finally {
 
-    catch {
+        setLoading(false);
 
-      toast.error(
-        "Failed to fetch incident"
-      );
+      }
 
-    }
-
-    finally {
-
-      setLoading(false);
-
-    }
-
-  };
+    };
 
   if (loading) {
 
@@ -104,18 +102,46 @@ const TrackIncident = () => {
       </h1>
 
       <CityMap
-        incidents={incident ? [incident] : []}
-        route={incident?.route || []}
+        incidents={incidents}
+        route={selectedIncident?.route || []}
         showNodes={true}
       />
 
+      <div className="mb-6 mt-6 flex flex-wrap gap-3">
+
+        {incidents?.map((incident) => (
+
+          <button
+            key={incident._id}
+            onClick={() =>
+              setSelectedIncident(incident)
+            }
+            className={`rounded-lg border px-4 py-2 ${
+              selectedIncident?._id === incident._id
+                ? "bg-blue-600 text-white"
+                : "bg-white"
+            }`}
+          >
+
+            {incident.title}
+
+            {" - "}
+
+            {incident.status}
+
+          </button>
+
+        ))}
+
+      </div>
+
       {
 
-        !incident ? (
+        !selectedIncident ? (
 
           <div className="rounded-xl bg-white p-8 shadow text-center">
 
-            No incidents found.
+            No active incidents found.
 
           </div>
 
@@ -125,39 +151,41 @@ const TrackIncident = () => {
 
             <h2 className="text-2xl font-bold">
 
-              {incident.title}
+              {selectedIncident.title}
 
             </h2>
 
             {
-              incident.description && (
+
+              selectedIncident.description && (
 
                 <p className="mt-3 text-gray-600">
 
-                  {incident.description}
+                  {selectedIncident.description}
 
                 </p>
 
               )
+
             }
 
             <div className="mt-6 flex flex-wrap gap-3">
 
               <span className="rounded bg-blue-100 px-3 py-1">
 
-                {incident.type}
+                {selectedIncident.type}
 
               </span>
 
               <span className="rounded bg-red-100 px-3 py-1">
 
-                {incident.status}
+                {selectedIncident.status}
 
               </span>
 
               <span className="rounded bg-green-100 px-3 py-1">
 
-                Severity {incident.severity}
+                Severity {selectedIncident.severity}
 
               </span>
 
@@ -182,10 +210,9 @@ const TrackIncident = () => {
                 ].map((step) => {
 
                   const completed =
-                    incident.statusHistory?.some(
+                    selectedIncident.statusHistory?.some(
                       (item) =>
-                        item.status ===
-                        step
+                        item.status === step
                     );
 
                   return (
@@ -250,7 +277,7 @@ const TrackIncident = () => {
 
                 {
 
-                  incident.location
+                  selectedIncident.location
                     ?.areaName
 
                 }
@@ -270,7 +297,7 @@ const TrackIncident = () => {
                 {
 
                   new Date(
-                    incident.updatedAt
+                    selectedIncident.updatedAt
                   ).toLocaleString()
 
                 }
