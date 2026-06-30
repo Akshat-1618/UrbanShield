@@ -6,8 +6,8 @@ html {
 
 body {
   margin: 0;
-  padding: 0;
-  background-color: #f8fafc;
+  min-height: 100vh;
+  background: #f8fafc;
   font-family:
     Inter,
     system-ui,
@@ -17,12 +17,15 @@ body {
     sans-serif;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 a {
   text-decoration: none;
+  color: inherit;
 }
 
 button {

@@ -2,13 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-
 import "leaflet/dist/leaflet.css";
-
 import App from "./App";
-
 import "./index.css";
-
 import { AuthProvider } from "./context/AuthContext";
 
 ReactDOM.createRoot(
@@ -17,9 +13,9 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-      <Toaster position="top-right" />
-      <App />
-    </AuthProvider>
+        <Toaster position="top-right" />
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
