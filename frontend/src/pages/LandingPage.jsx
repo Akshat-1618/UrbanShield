@@ -5,28 +5,15 @@ import FeaturesSection from "../components/landing/FeaturesSection";
 import WorkflowSection from "../components/landing/WorkflowSection";
 import Footer from "../components/landing/Footer";
 
-const LandingPage = () => {
-
-  return (
-
-    <div className="min-h-screen bg-slate-50">
-
-      <LandingNavbar />
-
-      <HeroSection />
-
-      <StatsSection />
-
-      <FeaturesSection />
-
-      <WorkflowSection />
-
-      <Footer />
-
-    </div>
-
-  );
-
-};
+const LandingPage = () => (
+  <div className="min-h-screen bg-slate-50">
+    <LandingNavbar />
+    <HeroSection />
+    <StatsSection />
+    <FeaturesSection />
+    <WorkflowSection />
+    <Footer />
+  </div>
+);
 
 export default LandingPage;

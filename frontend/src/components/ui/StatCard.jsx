@@ -4,25 +4,28 @@ const StatCard = ({
 }) => {
 
   return (
-
-    <div className="rounded-xl bg-white p-6 shadow">
-
-      <h3 className="text-gray-500 text-sm">
-
+    <div
+      className="
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        p-6
+        shadow-sm
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:shadow-lg
+      "
+    >
+      <p className="text-sm font-medium uppercase tracking-wide text-slate-500">
         {title}
-
-      </h3>
-
-      <h1 className="mt-2 text-3xl font-bold">
-
+      </p>
+      <h2 className="mt-3 text-4xl font-bold text-slate-900">
         {value}
-
-      </h1>
-
+      </h2>
     </div>
-
   );
-
 };
 
 export default StatCard;

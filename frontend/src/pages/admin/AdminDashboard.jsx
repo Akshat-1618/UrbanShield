@@ -1,106 +1,35 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import StatCard from "../../components/ui/StatCard";
-import { useAuth } from "../../context/AuthContext";
 import CityMap from "../../components/map/CityMap";
 
-import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
-
+import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
 import socket from "../../services/socket";
 
 const AdminDashboard = () => {
 
   const navigate = useNavigate();
-
   const { user } = useAuth();
 
+  const [loading, setLoading] = useState(true);
+
   const [stats, setStats] = useState({
-
-  totalIncidents: 0,
-
-  activeIncidents: 0,
-
-  resolvedIncidents: 0,
-
-  availableUnits: 0,
-
+    totalIncidents: 0,
+    activeIncidents: 0,
+    resolvedIncidents: 0,
+    availableUnits: 0,
   });
 
   const [units, setUnits] = useState([]);
-
   const [incidents, setIncidents] = useState([]);
+  const [priorityQueue, setPriorityQueue] = useState([]);
 
-  const [priorityQueue, setPriorityQueue] =
-  useState([]);
-
-const fetchDashboardData = async () => {
-
-  try {
-
-    const incidentsRes =
-      await api.get("/incidents");
-
-    const unitsRes =
-      await api.get("/units");
-
-    const incidents =
-      incidentsRes.data.data;
-
-    const units =
-      unitsRes.data.data;
-
-    const totalIncidents =
-      incidents.length;
-
-    const resolvedIncidents =
-      incidents.filter(
-
-        (incident) =>
-
-          incident.status === "RESOLVED"
-
-      ).length;
-
-    const activeIncidents = incidents.filter((incident) => incident.status !== "RESOLVED").length;
-
-    const availableUnits =units.filter(
-        (unit) => unit.availability
-      ).length;
-
-    setStats({
-      totalIncidents,
-      activeIncidents,
-      resolvedIncidents,
-      availableUnits,
-    });
-
-    const pendingRes =
-      await api.get(
-        "/incidents/pending"
-      );
-
-    setPriorityQueue(
-      pendingRes.data.data
-    );
-
-    setIncidents(incidents);
-
-    setUnits(units);
-
-  } catch {
-
-    toast.error(
-      "Failed to load dashboard"
-    );
-
-  }
-
-};
-
-useEffect(() => {
+  useEffect(() => {
 
     fetchDashboardData();
 
@@ -120,104 +49,164 @@ useEffect(() => {
 
   }, []);
 
+  const fetchDashboardData = async () => {
+
+    try {
+
+      const [
+        incidentsRes,
+        unitsRes,
+        pendingRes,
+      ] = await Promise.all([
+        api.get("/incidents"),
+        api.get("/units"),
+        api.get("/incidents/pending"),
+      ]);
+
+      const incidents =
+        incidentsRes.data.data;
+
+      const units =
+        unitsRes.data.data;
+
+      setIncidents(incidents);
+      setUnits(units);
+      setPriorityQueue(
+        pendingRes.data.data
+      );
+
+      setStats({
+        totalIncidents: incidents.length,
+        activeIncidents: incidents.filter(
+          (incident) =>
+            incident.status !== "RESOLVED"
+        ).length,
+        resolvedIncidents: incidents.filter(
+          (incident) =>
+            incident.status === "RESOLVED"
+        ).length,
+        availableUnits: units.filter(
+          (unit) => unit.availability
+        ).length,
+      });
+
+    }
+
+    catch {
+
+      toast.error(
+        "Failed to load dashboard"
+      );
+
+    }
+
+    finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  if (loading) {
+
+    return (
+      <DashboardLayout>
+        <h2>Loading...</h2>
+      </DashboardLayout>
+    );
+
+  }
+
   return (
 
     <DashboardLayout>
 
-      <div className="mb-8">
+      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
 
-        <h1 className="text-4xl font-bold">
+        <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
 
-          Welcome,
+          Emergency Command Center
 
-          {" "}
+        </p>
 
-          {user?.name}
+        <h1 className="mt-2 text-4xl font-bold text-slate-900">
 
-          👋
+          Welcome, {user?.name} 👋
 
         </h1>
 
-        <p className="mt-2 text-gray-600">
+        <p className="mt-3 text-slate-500">
 
-          Monitor incidents, manage emergency
-          units and coordinate city response.
+          Monitor incidents, dispatch emergency units and coordinate city-wide response in real time.
 
         </p>
 
       </div>
 
-      <div className="mt-10 rounded-xl bg-white p-6 shadow">
+      <div className="mb-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
-        <h2 className="mb-5 text-2xl font-semibold">
+        <StatCard
+          title="Total Incidents"
+          value={stats.totalIncidents}
+        />
 
-          City Map
+        <StatCard
+          title="Active Incidents"
+          value={stats.activeIncidents}
+        />
+
+        <StatCard
+          title="Resolved"
+          value={stats.resolvedIncidents}
+        />
+
+        <StatCard
+          title="Available Units"
+          value={stats.availableUnits}
+        />
+
+      </div>
+
+      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
+        <div className="mb-5">
+
+          <h2 className="text-2xl font-bold text-slate-900">
+
+            Live City Map
+
+          </h2>
+
+          <p className="mt-1 text-slate-500">
+
+            View all active incidents and emergency unit locations.
+
+          </p>
+
+        </div>
+
+        <CityMap
+          units={units}
+          incidents={incidents}
+          showNodes={true}
+        />
+
+      </div>
+
+      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+
+        <h2 className="mb-6 text-2xl font-bold">
+
+          Priority Dispatch Queue
 
         </h2>
 
-        <CityMap
+        {priorityQueue.length === 0 ? (
 
-          units={units}
+          <div className="rounded-2xl border border-dashed p-10 text-center text-slate-500">
 
-          incidents={incidents}
-
-          showNodes={true}
-
-        />
-
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-        <StatCard
-
-          title="Total Incidents"
-
-          value={stats.totalIncidents}
-
-        />
-
-        <StatCard
-
-          title="Active Incidents"
-
-          value={stats.activeIncidents}
-
-        />
-
-        <StatCard
-
-          title="Resolved"
-
-          value={stats.resolvedIncidents}
-
-        />
-
-        <StatCard
-
-          title="Available Units"
-
-          value={stats.availableUnits}
-
-        />
-
-      </div>
-
-      <div className="mt-10 rounded-xl bg-white p-6 shadow">
-
-      <h2 className="mb-5 text-2xl font-semibold">
-
-        Priority Dispatch Queue
-
-      </h2>
-
-      {
-
-        priorityQueue.length === 0 ? (
-
-          <div className="rounded-lg border border-dashed p-8 text-center text-gray-500">
-
-            No pending incidents.
+            🎉 No pending incidents.
 
           </div>
 
@@ -225,75 +214,60 @@ useEffect(() => {
 
           <div className="space-y-4">
 
-            {
+            {priorityQueue.map(
+              (incident, index) => (
 
-              priorityQueue.map(
+                <div
+                  key={incident._id}
+                  className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-5 transition hover:shadow-md md:flex-row md:items-center md:justify-between"
+                >
 
-                (incident, index) => (
+                  <div>
 
-                  <div
+                    <h3 className="text-xl font-bold text-slate-900">
 
-                    key={incident._id}
+                      #{index + 1} {incident.title}
 
-                    className="flex items-center justify-between rounded-lg border p-4"
+                    </h3>
 
-                  >
+                    <p className="mt-1 text-slate-500">
 
-                    <div>
+                      {incident.type}
 
-                      <h3 className="text-lg font-semibold">
-
-                        #{index + 1}
-
-                        {" "}
-
-                        {incident.title}
-
-                      </h3>
-
-                      <p className="text-sm text-gray-500">
-
-                        {incident.type}
-
-                      </p>
-
-                    </div>
-
-                    <div className="text-right">
-
-                      <p className="font-bold">
-
-                        Severity
-
-                      </p>
-
-                      <p className="text-red-600">
-
-                        {incident.severity}
-
-                      </p>
-
-                    </div>
+                    </p>
 
                   </div>
 
-                )
+                  <div className="flex items-center gap-4">
+
+                    <span className="rounded-full bg-red-100 px-4 py-2 font-semibold text-red-700">
+
+                      Severity {incident.severity}
+
+                    </span>
+
+                    <span className="rounded-full bg-slate-100 px-4 py-2 text-slate-700">
+
+                      📍 {incident.location.areaName}
+
+                    </span>
+
+                  </div>
+
+                </div>
 
               )
-
-            }
+            )}
 
           </div>
 
-        )
+        )}
 
-      }
+      </div>
 
-    </div>
+      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
 
-      <div className="mt-10 rounded-xl bg-white p-6 shadow">
-
-        <h2 className="mb-5 text-2xl font-semibold">
+        <h2 className="mb-6 text-2xl font-bold">
 
           Quick Actions
 
@@ -303,39 +277,89 @@ useEffect(() => {
 
           <PrimaryButton
             onClick={() =>
-              navigate(
-                "/admin/incidents"
-              )
+              navigate("/admin/incidents")
             }
           >
-            View Incidents
+            Manage Incidents
           </PrimaryButton>
 
           <PrimaryButton
             onClick={() =>
-              navigate(
-                "/admin/units"
-              )
+              navigate("/admin/units")
             }
           >
             Manage Units
+          </PrimaryButton>
+
+          <PrimaryButton
+            onClick={() =>
+              navigate("/admin/create-unit")
+            }
+          >
+            Create Unit
           </PrimaryButton>
 
         </div>
 
       </div>
 
-      <div className="mt-10 rounded-xl bg-white p-6 shadow">
+      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
 
-        <h2 className="mb-4 text-2xl font-semibold">
+        <h2 className="mb-5 text-2xl font-bold">
 
-          Recent Activity
+          System Status
 
         </h2>
 
-        <div className="rounded-lg border border-dashed p-10 text-center text-gray-500">
+        <div className="grid gap-4 md:grid-cols-3">
 
-          No recent activity.
+          <div className="rounded-2xl bg-green-50 p-5">
+
+            <h3 className="font-semibold text-green-700">
+
+              🟢 Backend
+
+            </h3>
+
+            <p className="mt-2 text-sm text-green-600">
+
+              Connected & Running
+
+            </p>
+
+          </div>
+
+          <div className="rounded-2xl bg-blue-50 p-5">
+
+            <h3 className="font-semibold text-blue-700">
+
+              🔄 Live Updates
+
+            </h3>
+
+            <p className="mt-2 text-sm text-blue-600">
+
+              Socket.IO Active
+
+            </p>
+
+          </div>
+
+          <div className="rounded-2xl bg-purple-50 p-5">
+
+            <h3 className="font-semibold text-purple-700">
+
+              🚑 Dispatch Engine
+
+            </h3>
+
+            <p className="mt-2 text-sm text-purple-600">
+
+              Priority Queue Online
+
+            </p>
+
+          </div>
 
         </div>
 

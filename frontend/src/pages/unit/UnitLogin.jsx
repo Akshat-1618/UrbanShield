@@ -1,183 +1,119 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import toast from "react-hot-toast";
-
 import api from "../../services/api";
-
 import { useAuth } from "../../context/AuthContext";
+import Logo from "../../components/common/Logo";
+import PrimaryButton from "../../components/ui/PrimaryButton";
 
 const UnitLogin = () => {
-
   const navigate = useNavigate();
-
   const { login } = useAuth();
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [formData, setFormData] =
-    useState({
-
-      email: "",
-
-      password: "",
-
-    });
-
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const handleChange = (e) => {
-
     setFormData({
-
       ...formData,
-
-      [e.target.name]:
-        e.target.value,
-
+      [e.target.name]: e.target.value,
     });
-
   };
-
-  const handleSubmit =
-    async (e) => {
-
-      e.preventDefault();
-
-      try {
-
-        setLoading(true);
-
-        const res =
-          await api.post(
-
-            "/units/login",
-
-            formData
-
-          );
-
-        login(
-
-          res.data.token,
-
-          {
-
-            ...res.data.unit,
-
-            role: "unit",
-
-          }
-
-        );
-
-        toast.success(
-
-          res.data.message
-
-        );
-
-        navigate(
-          "/unit/dashboard"
-        );
-
-      } catch (error) {
-
-        toast.error(
-
-          error.response?.data?.message ||
-
-          "Login failed"
-
-        );
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    };
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const res = await api.post(
+        "/units/login",
+        formData
+      );
+      login(
+        res.data.token,
+        {
+          ...res.data.unit,
+          role: "unit",
+        }
+      );
+      toast.success("Welcome Unit!");
+      navigate("/unit/dashboard");
+    }
+    catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+        "Login failed"
+      );
+    }
+    finally {
+      setLoading(false);
+    }
+  };
   return (
-
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-
-        <h2 className="text-3xl font-bold text-center mb-6">
-
-          Unit Login
-
-        </h2>
-
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 p-6">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
+        <div className="mb-8 flex justify-center">
+          <Logo />
+        </div>
+        <h1 className="text-center text-3xl font-bold text-slate-900">
+          Emergency Unit Login
+        </h1>
+        <p className="mt-2 text-center text-slate-500">
+          Access the Emergency Response Dashboard
+        </p>
         <form
           onSubmit={handleSubmit}
-          className="space-y-4"
+          className="mt-8 space-y-5"
         >
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full border p-3 rounded-lg"
-            required
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full border p-3 rounded-lg"
-            required
-          />
-
-          <button
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            />
+          </div>
+          <PrimaryButton
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white p-3 rounded-lg"
           >
-
-            {
-
-              loading
-
-                ? "Logging in..."
-
-                : "Login"
-
-            }
-
-          </button>
-
+            {loading ? "Signing In..." : "Login"}
+          </PrimaryButton>
         </form>
-
-        <p className="text-center mt-5">
-
-          Admin or Citizen?
-
+        <div className="mt-8 text-center text-sm">
+          <span className="text-slate-600">
+            Admin or Citizen?
+          </span>
           {" "}
-
           <Link
             to="/login"
-            className="text-blue-600"
+            className="font-semibold text-blue-600 transition hover:text-blue-700"
           >
-
             Login Here
-
           </Link>
-
-        </p>
-
+        </div>
       </div>
-
     </div>
-
   );
-
 };
 
 export default UnitLogin;
