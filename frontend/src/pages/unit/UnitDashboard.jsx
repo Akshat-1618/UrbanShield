@@ -1,146 +1,112 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  FaCheckCircle,
+  FaMapMarkerAlt,
+  FaAmbulance,
+  FaRoute,
+  FaFlagCheckered,
+  FaBullseye,
+} from "react-icons/fa";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import StatCard from "../../components/ui/StatCard";
+import PageLoader from "../../components/ui/PageLoader";
+import PageHeader from "../../components/ui/PageHeader";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import EmptyState from "../../components/ui/EmptyState";
 import CityMap from "../../components/map/CityMap";
 import api from "../../services/api";
 import socket from "../../services/socket";
+import { getUnitStatus, INCIDENT_PROGRESS_STEPS } from "../../utils/statusMeta";
 
 const UnitDashboard = () => {
   const [unit, setUnit] = useState(null);
   const [mission, setMission] = useState(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchData();
-    socket.on(
-      "incidentUpdated",
-      fetchData
-    );
+    socket.on("incidentUpdated", fetchData);
     return () => {
-      socket.off(
-        "incidentUpdated",
-        fetchData
-      );
+      socket.off("incidentUpdated", fetchData);
     };
   }, []);
 
   const fetchData = async () => {
     try {
-      const profileRes =
-        await api.get("/units/me");
-      const missionRes =
-        await api.get("/units/my-mission");
+      const profileRes = await api.get("/units/me");
+      const missionRes = await api.get("/units/my-mission");
       setUnit(profileRes.data.data);
       setMission(missionRes.data.data);
-    }
-    catch {
-      toast.error(
-        "Failed to load dashboard"
-      );
-    }
-    finally {
+    } catch {
+      toast.error("Failed to load dashboard");
+    } finally {
       setLoading(false);
     }
   };
+
   const updateStatus = async (status) => {
     try {
-      await api.patch(
-        `/incidents/${mission._id}/status`,
-        { status }
-      );
-      toast.success(
-        "Status Updated"
-      );
+      await api.patch(`/incidents/${mission._id}/status`, { status });
+      toast.success("Status Updated");
       fetchData();
-    }
-    catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-        "Failed to update status"
-      );
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update status");
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "ASSIGNED":
-        return "bg-yellow-100 text-yellow-700";
-      case "ON_THE_WAY":
-        return "bg-blue-100 text-blue-700";
-      case "ARRIVED":
-        return "bg-purple-100 text-purple-700";
-      case "RESOLVED":
-        return "bg-green-100 text-green-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
   if (loading) {
     return (
       <DashboardLayout>
-        <h2>Loading...</h2>
+        <PageLoader label="Loading unit console..." />
       </DashboardLayout>
     );
   }
+
+  const unitStatus = getUnitStatus(unit?.status);
+
   return (
     <DashboardLayout>
-      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-              Emergency Response Unit
-            </p>
-            <h1 className="mt-2 text-4xl font-bold text-slate-900">
-              {unit?.unitName}
-            </h1>
-            <p className="mt-2 text-slate-500">
-              {unit?.unitType}
-            </p>
-          </div>
-          <div>
-            <span
-              className={`rounded-full px-5 py-2 text-sm font-semibold ${getStatusColor(
-                unit?.status
-              )}`}
-            >
-              {unit?.status}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="mb-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          title="Current Status"
-          value={unit?.status || "-"}
-        />
+      <PageHeader
+        eyebrow="Emergency Response Unit"
+        title={unit?.unitName || ""}
+        description={unit?.unitType?.replaceAll("_", " ")}
+        actions={
+          <Badge tone={unitStatus.tone} icon={unitStatus.icon} className="text-sm">
+            {unitStatus.label}
+          </Badge>
+        }
+      />
+
+      <div className="mb-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4 animate-fade-in-up animate-delay-1">
+        <StatCard title="Current Status" value={unitStatus.label} icon={FaAmbulance} tone="blue" />
         <StatCard
           title="Mission"
-          value={mission ? "ACTIVE" : "NONE"}
+          value={mission ? "Active" : "None"}
+          icon={FaBullseye}
+          tone={mission ? "amber" : "green"}
         />
         <StatCard
           title="Current Area"
-          value={
-            unit?.currentLocation?.areaName ||
-            "-"
-          }
+          value={unit?.currentLocation?.areaName || "-"}
+          icon={FaMapMarkerAlt}
+          tone="purple"
         />
         <StatCard
           title="Severity"
-          value={
-            mission
-              ? mission.severity
-              : "-"
-          }
+          value={mission ? mission.severity : "-"}
+          icon={FaFlagCheckered}
+          tone="red"
         />
       </div>
-      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
+      <Card className="mb-8 animate-fade-in-up animate-delay-2">
         <div className="mb-5">
-          <h2 className="text-2xl font-bold text-slate-900">
-            Live Deployment Map
-          </h2>
-          <p className="mt-1 text-slate-500">
-            Current unit location, assigned incident and shortest response route.
+          <h2 className="text-xl font-bold text-slate-900">Live Deployment Map</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Current unit location, assigned incident, and the shortest response route.
           </p>
         </div>
         <CityMap
@@ -149,163 +115,125 @@ const UnitDashboard = () => {
           route={mission?.route || []}
           showNodes={true}
         />
-      </div>
+      </Card>
+
       {mission ? (
         <>
-          <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <Card className="mb-8 animate-fade-in-up animate-delay-3">
             <div className="flex flex-col gap-6 lg:flex-row lg:justify-between">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-slate-900">
-                  Current Mission
-                </h2>
-                <h3 className="mt-5 text-3xl font-bold">
+                <h2 className="text-xl font-bold text-slate-900">Current Mission</h2>
+                <h3 className="mt-4 text-2xl font-bold text-slate-900">
                   {mission.title}
                 </h3>
                 {mission.description && (
-                  <p className="mt-3 text-slate-600">
-                    {mission.description}
-                  </p>
+                  <p className="mt-2.5 text-slate-600">{mission.description}</p>
                 )}
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
-                    {mission.type}
-                  </span>
-                  <span className="rounded-full bg-red-100 px-4 py-2 text-sm font-semibold text-red-700">
-                    Severity {mission.severity}
-                  </span>
-                  <span
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${getStatusColor(
-                      mission.status
-                    )}`}
-                  >
-                    {mission.status}
-                  </span>
+                <div className="mt-5 flex flex-wrap gap-2.5">
+                  <Badge tone="blue">{mission.type}</Badge>
+                  <Badge tone="red">Severity {mission.severity}</Badge>
+                  <Badge tone={getUnitStatus(mission.status).tone}>
+                    {mission.status.replaceAll("_", " ")}
+                  </Badge>
                 </div>
               </div>
               <div className="grid gap-5 lg:w-80">
                 <div>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                     Area
                   </p>
-                  <p className="font-semibold">
-                    📍 {mission.location?.areaName}
+                  <p className="mt-1 flex items-center gap-1.5 font-semibold text-slate-800">
+                    <FaMapMarkerAlt className="text-slate-400" aria-hidden="true" />
+                    {mission.location?.areaName}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                     Route Distance
                   </p>
-                  <p className="font-semibold">
-                    {mission.routeDistance || 0} KM
+                  <p className="mt-1 font-semibold text-slate-800">
+                    {mission.routeDistance ? `${mission.routeDistance} KM` : "-"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                     Last Updated
                   </p>
-                  <p className="font-semibold">
-                    {new Date(
-                      mission.updatedAt
-                    ).toLocaleString()}
+                  <p className="mt-1 font-semibold text-slate-800">
+                    {new Date(mission.updatedAt).toLocaleString()}
                   </p>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-            <h2 className="mb-6 text-2xl font-bold">
-              Mission Progress
-            </h2>
-            <div className="flex flex-wrap gap-4">
-              {[
-                "REPORTED",
-                "ASSIGNED",
-                "ON_THE_WAY",
-                "ARRIVED",
-                "RESOLVED",
-              ].map((step) => {
-                const completed =
-                  mission.statusHistory?.some(
-                    (item) =>
-                      item.status === step
-                  );
+          </Card>
+
+          <Card className="mb-8 animate-fade-in-up animate-delay-4">
+            <h2 className="mb-6 text-xl font-bold text-slate-900">Mission Progress</h2>
+            <div className="flex flex-wrap gap-3">
+              {INCIDENT_PROGRESS_STEPS.map((step) => {
+                const completed = mission.statusHistory?.some(
+                  (item) => item.status === step
+                );
                 return (
                   <div
                     key={step}
-                    className={`rounded-full px-5 py-3 text-sm font-semibold ${
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold ${
                       completed
-                        ? "bg-green-100 text-green-700"
-                        : "bg-slate-100 text-slate-500"
+                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/10"
+                        : "bg-slate-100 text-slate-400"
                     }`}
                   >
-                    {completed ? "✅" : "⬜"}
-                    {" "}
-                    {step.replaceAll(
-                      "_",
-                      " "
-                    )}
+                    <FaCheckCircle
+                      className={completed ? "text-emerald-500" : "text-slate-300"}
+                      aria-hidden="true"
+                    />
+                    {step.replaceAll("_", " ")}
                   </div>
                 );
               })}
             </div>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-            <h2 className="mb-6 text-2xl font-bold">
-              Mission Actions
-            </h2>
+          </Card>
+
+          <Card className="animate-fade-in-up animate-delay-4">
+            <h2 className="mb-6 text-xl font-bold text-slate-900">Mission Actions</h2>
             <div className="flex flex-wrap gap-4">
-              {mission.status ===
-                "ASSIGNED" && (
+              {mission.status === "ASSIGNED" && (
                 <PrimaryButton
-                  onClick={() =>
-                    updateStatus(
-                      "ON_THE_WAY"
-                    )
-                  }
+                  icon={FaRoute}
+                  fullWidth={false}
+                  onClick={() => updateStatus("ON_THE_WAY")}
                 >
-                  🚑 Start Journey
+                  Start Journey
                 </PrimaryButton>
               )}
-              {mission.status ===
-                "ON_THE_WAY" && (
+              {mission.status === "ON_THE_WAY" && (
                 <PrimaryButton
-                  onClick={() =>
-                    updateStatus(
-                      "ARRIVED"
-                    )
-                  }
+                  icon={FaMapMarkerAlt}
+                  fullWidth={false}
+                  onClick={() => updateStatus("ARRIVED")}
                 >
-                  📍 Mark Arrived
+                  Mark Arrived
                 </PrimaryButton>
               )}
-              {mission.status ===
-                "ARRIVED" && (
+              {mission.status === "ARRIVED" && (
                 <PrimaryButton
-                  onClick={() =>
-                    updateStatus(
-                      "RESOLVED"
-                    )
-                  }
+                  icon={FaCheckCircle}
+                  fullWidth={false}
+                  variant="danger"
+                  onClick={() => updateStatus("RESOLVED")}
                 >
-                  ✅ Resolve Incident
+                  Resolve Incident
                 </PrimaryButton>
               )}
             </div>
-          </div>
+          </Card>
         </>
       ) : (
-        <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-          <div className="text-6xl">
-            🚑
-          </div>
-          <h2 className="mt-5 text-3xl font-bold text-slate-900">
-            No Active Mission
-          </h2>
-          <p className="mt-3 text-slate-500">
-            Your emergency unit is currently available.
-            You'll automatically receive new missions when assigned by the administrator.
-          </p>
-        </div>
+        <EmptyState
+          icon={FaAmbulance}
+          title="No active mission"
+          description="Your unit is currently available. You'll automatically receive a mission when the administrator dispatches you to an incident."
+        />
       )}
     </DashboardLayout>
   );

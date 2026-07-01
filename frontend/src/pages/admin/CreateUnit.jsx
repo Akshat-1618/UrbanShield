@@ -1,18 +1,23 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { FaPlusCircle } from "react-icons/fa";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import PrimaryButton from "../../components/ui/PrimaryButton";
+import PageHeader from "../../components/ui/PageHeader";
+import Card from "../../components/ui/Card";
+import FormField from "../../components/ui/FormField";
+import { inputClasses } from "../../components/ui/inputStyles";
 
 import api from "../../services/api";
+import cityGraph from "../../data/cityGraph";
+
+const areaOptions = Object.values(cityGraph.nodes).map((node) => node.name);
 
 const CreateUnit = () => {
-
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     unitName: "",
     email: "",
@@ -22,85 +27,37 @@ const CreateUnit = () => {
   });
 
   const handleChange = (e) => {
-
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
     try {
-
       setLoading(true);
-
-      const res = await api.post(
-        "/units",
-        formData
-      );
-
-      toast.success(
-        res.data.message
-      );
-
-      navigate(
-        "/admin/units"
-      );
-
-    }
-
-    catch (error) {
-
-      toast.error(
-        error.response?.data?.message ||
-        "Failed to create unit"
-      );
-
-    }
-
-    finally {
-
+      const res = await api.post("/units", formData);
+      toast.success(res.data.message);
+      navigate("/admin/units");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create unit");
+    } finally {
       setLoading(false);
-
     }
-
   };
 
   return (
-
     <DashboardLayout>
+      <PageHeader
+        eyebrow="Command Center"
+        title="Create Emergency Unit"
+        description="Register a new emergency response unit and assign its initial deployment location."
+      />
 
-      <div className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-
-        <h1 className="text-3xl font-bold text-slate-900">
-
-          Create Emergency Unit
-
-        </h1>
-
-        <p className="mt-2 text-slate-500">
-
-          Register a new emergency response unit and assign its initial deployment location.
-
-        </p>
-
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 space-y-5"
-        >
-
-          <div>
-
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-
-              Unit Name
-
-            </label>
-
+      <Card className="mx-auto max-w-3xl animate-fade-in-up animate-delay-1">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <FormField label="Unit Name">
             <input
               type="text"
               name="unitName"
@@ -108,141 +65,71 @@ const CreateUnit = () => {
               onChange={handleChange}
               placeholder="e.g. Alpha Ambulance"
               required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+              className={inputClasses}
             />
+          </FormField>
 
-          </div>
-
-          <div>
-
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-
-              Email
-
-            </label>
-
+          <FormField label="Email">
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="unit@email.com"
+              placeholder="unit@example.com"
               required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+              className={inputClasses}
             />
+          </FormField>
 
-          </div>
-
-          <div>
-
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-
-              Password
-
-            </label>
-
+          <FormField label="Password" hint="Minimum 6 characters.">
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Minimum 6 characters"
+              placeholder="Set a login password"
               required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+              className={inputClasses}
             />
+          </FormField>
 
-          </div>
-
-          <div>
-
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-
-              Unit Type
-
-            </label>
-
+          <FormField label="Unit Type">
             <select
               name="unitType"
               value={formData.unitType}
               onChange={handleChange}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+              className={inputClasses}
             >
-
-              <option value="AMBULANCE">
-                Ambulance
-              </option>
-
-              <option value="POLICE">
-                Police
-              </option>
-
-              <option value="FIRE_BRIGADE">
-                Fire Brigade
-              </option>
-
+              <option value="AMBULANCE">Ambulance</option>
+              <option value="POLICE">Police</option>
+              <option value="FIRE_BRIGADE">Fire Brigade</option>
             </select>
+          </FormField>
 
-          </div>
-
-          <div>
-
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-
-              Initial Location
-
-            </label>
-
+          <FormField label="Initial Location">
             <select
               name="areaName"
               value={formData.areaName}
               onChange={handleChange}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+              className={inputClasses}
             >
-
-              <option value="Sector 18">Sector 18</option>
-              <option value="Sector 16">Sector 16</option>
-              <option value="Botanical Garden">Botanical Garden</option>
-              <option value="Noida City Centre">Noida City Centre</option>
-              <option value="Atta Market">Atta Market</option>
-              <option value="District Hospital">District Hospital</option>
-              <option value="Fire Headquarters">Fire Headquarters</option>
-              <option value="Police Headquarters">Police Headquarters</option>
-              <option value="Sector 62">Sector 62</option>
-              <option value="Film City">Film City</option>
-              <option value="Sector 137">Sector 137</option>
-              <option value="Metro Depot">Metro Depot</option>
-              <option value="Pari Chowk">Pari Chowk</option>
-              <option value="Knowledge Park">Knowledge Park</option>
-              <option value="Expo Mart">Expo Mart</option>
-              <option value="Bus Terminal">Bus Terminal</option>
-
+              {areaOptions.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
             </select>
+          </FormField>
 
+          <div className="pt-2">
+            <PrimaryButton type="submit" disabled={loading} icon={FaPlusCircle}>
+              {loading ? "Creating Unit..." : "Create Emergency Unit"}
+            </PrimaryButton>
           </div>
-
-          <PrimaryButton
-            type="submit"
-            disabled={loading}
-          >
-
-            {
-
-              loading
-                ? "Creating Unit..."
-                : "Create Emergency Unit"
-
-            }
-
-          </PrimaryButton>
-
         </form>
-
-      </div>
-
+      </Card>
     </DashboardLayout>
-
   );
-
 };
 
 export default CreateUnit;

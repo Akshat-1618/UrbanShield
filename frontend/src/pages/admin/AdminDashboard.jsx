@@ -1,374 +1,218 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  FaListUl,
+  FaBolt,
+  FaCheckCircle,
+  FaTruck,
+  FaMapMarkerAlt,
+  FaClipboardList,
+  FaPlusCircle,
+  FaCircle,
+  FaSyncAlt,
+  FaAmbulance,
+  FaThumbsUp,
+} from "react-icons/fa";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import PrimaryButton from "../../components/ui/PrimaryButton";
 import StatCard from "../../components/ui/StatCard";
+import PageLoader from "../../components/ui/PageLoader";
+import PageHeader from "../../components/ui/PageHeader";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import EmptyState from "../../components/ui/EmptyState";
 import CityMap from "../../components/map/CityMap";
 
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
 import socket from "../../services/socket";
+import { severityTone } from "../../utils/statusMeta";
 
 const AdminDashboard = () => {
-
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
-
   const [stats, setStats] = useState({
     totalIncidents: 0,
     activeIncidents: 0,
     resolvedIncidents: 0,
     availableUnits: 0,
   });
-
   const [units, setUnits] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [priorityQueue, setPriorityQueue] = useState([]);
 
   useEffect(() => {
-
     fetchDashboardData();
-
-    socket.on(
-      "incidentUpdated",
-      fetchDashboardData
-    );
-
+    socket.on("incidentUpdated", fetchDashboardData);
     return () => {
-
-      socket.off(
-        "incidentUpdated",
-        fetchDashboardData
-      );
-
+      socket.off("incidentUpdated", fetchDashboardData);
     };
-
   }, []);
 
   const fetchDashboardData = async () => {
-
     try {
-
-      const [
-        incidentsRes,
-        unitsRes,
-        pendingRes,
-      ] = await Promise.all([
+      const [incidentsRes, unitsRes, pendingRes] = await Promise.all([
         api.get("/incidents"),
         api.get("/units"),
         api.get("/incidents/pending"),
       ]);
 
-      const incidents =
-        incidentsRes.data.data;
-
-      const units =
-        unitsRes.data.data;
+      const incidents = incidentsRes.data.data;
+      const units = unitsRes.data.data;
 
       setIncidents(incidents);
       setUnits(units);
-      setPriorityQueue(
-        pendingRes.data.data
-      );
+      setPriorityQueue(pendingRes.data.data);
 
       setStats({
         totalIncidents: incidents.length,
         activeIncidents: incidents.filter(
-          (incident) =>
-            incident.status !== "RESOLVED"
+          (incident) => incident.status !== "RESOLVED"
         ).length,
         resolvedIncidents: incidents.filter(
-          (incident) =>
-            incident.status === "RESOLVED"
+          (incident) => incident.status === "RESOLVED"
         ).length,
-        availableUnits: units.filter(
-          (unit) => unit.availability
-        ).length,
+        availableUnits: units.filter((unit) => unit.availability).length,
       });
-
-    }
-
-    catch {
-
-      toast.error(
-        "Failed to load dashboard"
-      );
-
-    }
-
-    finally {
-
+    } catch {
+      toast.error("Failed to load dashboard");
+    } finally {
       setLoading(false);
-
     }
-
   };
 
   if (loading) {
-
     return (
       <DashboardLayout>
-        <h2>Loading...</h2>
+        <PageLoader label="Loading command center..." />
       </DashboardLayout>
     );
-
   }
 
   return (
-
     <DashboardLayout>
+      <PageHeader
+        eyebrow="Emergency Command Center"
+        title={`Welcome, ${user?.name || ""}`}
+        description="Monitor incidents, dispatch emergency units, and coordinate city-wide response in real time."
+      />
 
-      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-
-        <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-
-          Emergency Command Center
-
-        </p>
-
-        <h1 className="mt-2 text-4xl font-bold text-slate-900">
-
-          Welcome, {user?.name} 👋
-
-        </h1>
-
-        <p className="mt-3 text-slate-500">
-
-          Monitor incidents, dispatch emergency units and coordinate city-wide response in real time.
-
-        </p>
-
+      <div className="mb-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4 animate-fade-in-up animate-delay-1">
+        <StatCard title="Total Incidents" value={stats.totalIncidents} icon={FaListUl} tone="blue" />
+        <StatCard title="Active Incidents" value={stats.activeIncidents} icon={FaBolt} tone="amber" />
+        <StatCard title="Resolved" value={stats.resolvedIncidents} icon={FaCheckCircle} tone="green" />
+        <StatCard title="Available Units" value={stats.availableUnits} icon={FaTruck} tone="purple" />
       </div>
 
-      <div className="mb-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-        <StatCard
-          title="Total Incidents"
-          value={stats.totalIncidents}
-        />
-
-        <StatCard
-          title="Active Incidents"
-          value={stats.activeIncidents}
-        />
-
-        <StatCard
-          title="Resolved"
-          value={stats.resolvedIncidents}
-        />
-
-        <StatCard
-          title="Available Units"
-          value={stats.availableUnits}
-        />
-
-      </div>
-
-      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
+      <Card className="mb-8 animate-fade-in-up animate-delay-2">
         <div className="mb-5">
-
-          <h2 className="text-2xl font-bold text-slate-900">
-
-            Live City Map
-
-          </h2>
-
-          <p className="mt-1 text-slate-500">
-
+          <h2 className="text-xl font-bold text-slate-900">Live City Map</h2>
+          <p className="mt-1 text-sm text-slate-500">
             View all active incidents and emergency unit locations.
-
           </p>
-
         </div>
-
         <CityMap
           units={units}
-          incidents={incidents}
+          incidents={incidents.filter((incident) => incident.status !== "RESOLVED")}
           showNodes={true}
         />
+      </Card>
 
-      </div>
-
-      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-
-        <h2 className="mb-6 text-2xl font-bold">
-
+      <Card className="mb-8 animate-fade-in-up animate-delay-3">
+        <h2 className="mb-6 text-xl font-bold text-slate-900">
           Priority Dispatch Queue
-
         </h2>
-
         {priorityQueue.length === 0 ? (
-
-          <div className="rounded-2xl border border-dashed p-10 text-center text-slate-500">
-
-            🎉 No pending incidents.
-
-          </div>
-
+          <EmptyState
+            icon={FaThumbsUp}
+            title="No pending incidents"
+            description="Every reported incident currently has a unit assigned."
+          />
         ) : (
-
           <div className="space-y-4">
-
-            {priorityQueue.map(
-              (incident, index) => (
-
-                <div
-                  key={incident._id}
-                  className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-5 transition hover:shadow-md md:flex-row md:items-center md:justify-between"
-                >
-
-                  <div>
-
-                    <h3 className="text-xl font-bold text-slate-900">
-
-                      #{index + 1} {incident.title}
-
-                    </h3>
-
-                    <p className="mt-1 text-slate-500">
-
-                      {incident.type}
-
-                    </p>
-
-                  </div>
-
-                  <div className="flex items-center gap-4">
-
-                    <span className="rounded-full bg-red-100 px-4 py-2 font-semibold text-red-700">
-
-                      Severity {incident.severity}
-
-                    </span>
-
-                    <span className="rounded-full bg-slate-100 px-4 py-2 text-slate-700">
-
-                      📍 {incident.location.areaName}
-
-                    </span>
-
-                  </div>
-
+            {priorityQueue.map((incident, index) => (
+              <div
+                key={incident._id}
+                className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-5 transition hover:border-[color:var(--color-aurora-300)]/50 hover:shadow-md md:flex-row md:items-center md:justify-between"
+              >
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    #{index + 1} {incident.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-slate-500">{incident.type}</p>
                 </div>
-
-              )
-            )}
-
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge tone={severityTone(incident.severity)}>
+                    Severity {incident.severity}
+                  </Badge>
+                  <Badge tone="slate" icon={FaMapMarkerAlt}>
+                    {incident.location.areaName}
+                  </Badge>
+                </div>
+              </div>
+            ))}
           </div>
-
         )}
+      </Card>
 
-      </div>
-
-      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-
-        <h2 className="mb-6 text-2xl font-bold">
-
-          Quick Actions
-
-        </h2>
-
-        <div className="flex flex-wrap gap-4">
-
+      <Card className="mb-8 animate-fade-in-up animate-delay-4">
+        <h2 className="mb-6 text-xl font-bold text-slate-900">Quick Actions</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
           <PrimaryButton
-            onClick={() =>
-              navigate("/admin/incidents")
-            }
+            icon={FaClipboardList}
+            onClick={() => navigate("/admin/incidents")}
           >
             Manage Incidents
           </PrimaryButton>
-
           <PrimaryButton
-            onClick={() =>
-              navigate("/admin/units")
-            }
+            icon={FaTruck}
+            variant="secondary"
+            onClick={() => navigate("/admin/units")}
           >
             Manage Units
           </PrimaryButton>
-
           <PrimaryButton
-            onClick={() =>
-              navigate("/admin/create-unit")
-            }
+            icon={FaPlusCircle}
+            variant="secondary"
+            onClick={() => navigate("/admin/create-unit")}
           >
             Create Unit
           </PrimaryButton>
-
         </div>
+      </Card>
 
-      </div>
-
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-
-        <h2 className="mb-5 text-2xl font-bold">
-
-          System Status
-
-        </h2>
-
+      <Card className="animate-fade-in-up animate-delay-4">
+        <h2 className="mb-5 text-xl font-bold text-slate-900">System Status</h2>
         <div className="grid gap-4 md:grid-cols-3">
-
-          <div className="rounded-2xl bg-green-50 p-5">
-
-            <h3 className="font-semibold text-green-700">
-
-              🟢 Backend
-
-            </h3>
-
-            <p className="mt-2 text-sm text-green-600">
-
-              Connected & Running
-
-            </p>
-
+          <div className="flex items-start gap-3 rounded-2xl bg-emerald-50 p-5">
+            <FaCircle className="mt-1 text-[10px] text-emerald-500" aria-hidden="true" />
+            <div>
+              <h3 className="font-semibold text-emerald-800">Backend</h3>
+              <p className="mt-1 text-sm text-emerald-700">Connected &amp; running</p>
+            </div>
           </div>
-
-          <div className="rounded-2xl bg-blue-50 p-5">
-
-            <h3 className="font-semibold text-blue-700">
-
-              🔄 Live Updates
-
-            </h3>
-
-            <p className="mt-2 text-sm text-blue-600">
-
-              Socket.IO Active
-
-            </p>
-
+          <div className="flex items-start gap-3 rounded-2xl bg-[color:var(--color-aurora-100)]/30 p-5">
+            <FaSyncAlt className="mt-1 text-[color:var(--color-aurora-700)]" aria-hidden="true" />
+            <div>
+              <h3 className="font-semibold text-[color:var(--color-aurora-900)]">Live Updates</h3>
+              <p className="mt-1 text-sm text-[color:var(--color-aurora-700)]">Real-time sync active</p>
+            </div>
           </div>
-
-          <div className="rounded-2xl bg-purple-50 p-5">
-
-            <h3 className="font-semibold text-purple-700">
-
-              🚑 Dispatch Engine
-
-            </h3>
-
-            <p className="mt-2 text-sm text-purple-600">
-
-              Priority Queue Online
-
-            </p>
-
+          <div className="flex items-start gap-3 rounded-2xl bg-violet-50 p-5">
+            <FaAmbulance className="mt-1 text-violet-600" aria-hidden="true" />
+            <div>
+              <h3 className="font-semibold text-violet-800">Dispatch Engine</h3>
+              <p className="mt-1 text-sm text-violet-700">Priority queue online</p>
+            </div>
           </div>
-
         </div>
-
-      </div>
-
+      </Card>
     </DashboardLayout>
-
   );
-
 };
 
 export default AdminDashboard;

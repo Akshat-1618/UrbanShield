@@ -1,4 +1,33 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-900: #1e3a8a;
+
+  --color-accent-500: #06b6d4;
+
+  /* Landing-page palette (Coolors: bce784 → 513b56) */
+  --color-aurora-100: #bce784;
+  --color-aurora-200: #8ddd91;
+  --color-aurora-300: #5dd39e;
+  --color-aurora-400: #49afa3;
+  --color-aurora-500: #348aa7;
+  --color-aurora-600: #436e8e;
+  --color-aurora-700: #525174;
+  --color-aurora-800: #524665;
+  --color-aurora-900: #513b56;
+
+  --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 28px -14px rgba(15, 23, 42, 0.14);
+  --shadow-soft-lg: 0 4px 12px rgba(15, 23, 42, 0.06), 0 24px 48px -20px rgba(15, 23, 42, 0.18);
+}
 
 html {
   scroll-behavior: smooth;
@@ -7,7 +36,8 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: #f8fafc;
+  background: #f7f9fc;
+  color: #0f172a;
   font-family:
     Inter,
     system-ui,
@@ -15,6 +45,8 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 *,
@@ -30,8 +62,101 @@ a {
 
 button {
   cursor: pointer;
+  font-family: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
 }
 
 #root {
   min-height: 100vh;
+}
+
+::selection {
+  background: #8ddd91;
+  color: #513b56;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+  border: 2px solid #f7f9fc;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+:focus-visible {
+  outline: 2px solid #348aa7;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Shared entrance animation used across dashboard sections */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-delay-1 {
+  animation-delay: 0.05s;
+}
+.animate-delay-2 {
+  animation-delay: 0.1s;
+}
+.animate-delay-3 {
+  animation-delay: 0.15s;
+}
+.animate-delay-4 {
+  animation-delay: 0.2s;
+}
+
+/* Leaflet popup restyle so map popups match the design system */
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft-lg);
+  padding: 2px;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #94a3b8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

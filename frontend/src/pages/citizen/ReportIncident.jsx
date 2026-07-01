@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { FaExclamationTriangle } from "react-icons/fa";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import PrimaryButton from "../../components/ui/PrimaryButton";
+import PageHeader from "../../components/ui/PageHeader";
+import Card from "../../components/ui/Card";
+import FormField from "../../components/ui/FormField";
+import { inputClasses } from "../../components/ui/inputStyles";
 import api from "../../services/api";
+import cityGraph from "../../data/cityGraph";
+
+const areaOptions = Object.values(cityGraph.nodes).map((node) => node.name);
 
 const ReportIncident = () => {
   const navigate = useNavigate();
@@ -15,6 +23,7 @@ const ReportIncident = () => {
     priority: "LOW",
     areaName: "Sector 18",
   });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -22,84 +31,61 @@ const ReportIncident = () => {
       [name]: value,
     });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await api.post(
-        "/incidents",
-        formData
-      );
-      toast.success(
-        res.data.message
-      );
-      navigate(
-        "/citizen/dashboard"
-      );
-    }
-    catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-        "Failed to create incident"
-      );
-    }
-    finally {
+      const res = await api.post("/incidents", formData);
+      toast.success(res.data.message);
+      navigate("/citizen/dashboard");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create incident");
+    } finally {
       setLoading(false);
     }
   };
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-4xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900">
-            Report Emergency
-          </h1>
-          <p className="mt-2 text-slate-500">
-            Provide accurate information so emergency responders can reach you as quickly as possible.
-          </p>
-        </div>
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Incident Title
-            </label>
+      <PageHeader
+        eyebrow="Citizen Portal"
+        title="Report an Emergency"
+        description="Provide accurate details so the nearest available unit can be dispatched to you as quickly as possible."
+      />
+
+      <Card className="mx-auto max-w-3xl animate-fade-in-up animate-delay-1">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FormField label="Incident Title">
             <input
               type="text"
               name="title"
-              placeholder="Example: Major Road Accident"
+              placeholder="e.g. Major Road Accident"
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+              className={inputClasses}
             />
-          </div>
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Description
-            </label>
+          </FormField>
+
+          <FormField label="Description" hint="Optional, but helpful for responders.">
             <textarea
               rows={5}
               name="description"
               placeholder="Describe what happened..."
               value={formData.description}
               onChange={handleChange}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+              className={inputClasses}
             />
-          </div>
+          </FormField>
+
           <div className="grid gap-6 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Emergency Type
-              </label>
+            <FormField label="Emergency Type">
               <select
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+                className={inputClasses}
               >
                 <option value="ACCIDENT">Accident</option>
                 <option value="FIRE">Fire</option>
@@ -107,64 +93,50 @@ const ReportIncident = () => {
                 <option value="CRIME">Crime</option>
                 <option value="INFRASTRUCTURE">Infrastructure</option>
               </select>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Priority
-              </label>
+            </FormField>
+
+            <FormField label="Priority">
               <select
                 name="priority"
                 value={formData.priority}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+                className={inputClasses}
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
                 <option value="CRITICAL">Critical</option>
               </select>
-            </div>
+            </FormField>
           </div>
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Incident Location
-            </label>
+
+          <FormField label="Incident Location">
             <select
               name="areaName"
               value={formData.areaName}
               onChange={handleChange}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600"
+              className={inputClasses}
             >
-              <option>Sector 18</option>
-              <option>Sector 16</option>
-              <option>Botanical Garden</option>
-              <option>Noida City Centre</option>
-              <option>Atta Market</option>
-              <option>District Hospital</option>
-              <option>Fire Headquarters</option>
-              <option>Police Headquarters</option>
-              <option>Sector 62</option>
-              <option>Film City</option>
-              <option>Sector 137</option>
-              <option>Metro Depot</option>
-              <option>Pari Chowk</option>
-              <option>Knowledge Park</option>
-              <option>Expo Mart</option>
-              <option>Bus Terminal</option>
+              {areaOptions.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
             </select>
-          </div>
+          </FormField>
+
           <div className="pt-2">
             <PrimaryButton
               type="submit"
               disabled={loading}
+              variant="danger"
+              icon={FaExclamationTriangle}
             >
-              {loading
-                ? "Submitting..."
-                : "🚨 Report Incident"}
+              {loading ? "Submitting..." : "Report Incident"}
             </PrimaryButton>
           </div>
         </form>
-      </div>
+      </Card>
     </DashboardLayout>
   );
 };
