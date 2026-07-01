@@ -102,6 +102,7 @@ exports.getMyIncidents = async (req, res) => {
       createdBy: req.user.id,
     })
       .populate("createdBy", "name email")
+      .populate("assignedUnit")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
