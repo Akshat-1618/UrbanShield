@@ -23,20 +23,34 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(helmet());
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://urban-shield-six.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/incidents", incidentRoutes);
 app.use("/api/units", unitRoutes);
-app.use("/api/dispatcher",dispatcherRoutes);
+app.use("/api/dispatcher", dispatcherRoutes);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PATCH"],
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
   },
 });
 
